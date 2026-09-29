@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Sparkles, ArrowRight, X, Loader2, BookOpen } from 'lucide-react';
 import { Book } from '../types';
-import { BOOKS_DATA } from '../data/booksData';
+import { useLibrary } from '../context/LibraryContext';
 import { BookCard } from './BookCard';
 
 interface IntelligentSearchProps {
@@ -13,6 +13,7 @@ export const IntelligentSearch: React.FC<IntelligentSearchProps> = ({
   onSelectBook,
   onOpenReader
 }) => {
+  const { allBooks } = useLibrary();
   const [query, setQuery] = useState('');
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [aiInsight, setAiInsight] = useState<{
@@ -33,7 +34,7 @@ export const IntelligentSearch: React.FC<IntelligentSearchProps> = ({
     const q = query.trim().toLowerCase();
     if (!q) return [];
 
-    return BOOKS_DATA.filter(book => {
+    return allBooks.filter(book => {
       const matchTitle = book.title.toLowerCase().includes(q);
       const matchAuthor = book.author.toLowerCase().includes(q);
       const matchCategory = book.category.toLowerCase().includes(q);
@@ -44,7 +45,7 @@ export const IntelligentSearch: React.FC<IntelligentSearchProps> = ({
 
       return matchTitle || matchAuthor || matchCategory || matchTopics || matchDesc || matchProject || matchCareer;
     });
-  }, [query]);
+  }, [allBooks, query]);
 
   const handleSynthesize = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
@@ -84,11 +85,11 @@ export const IntelligentSearch: React.FC<IntelligentSearchProps> = ({
     if (!aiInsight?.recommendations) return [];
     return aiInsight.recommendations
       .map(rec => {
-        const book = BOOKS_DATA.find(b => b.id === rec.bookId);
+        const book = allBooks.find(b => b.id === rec.bookId);
         return book ? { book, rationale: rec.rationale } : null;
       })
       .filter(Boolean) as { book: Book; rationale: string }[];
-  }, [aiInsight]);
+  }, [allBooks, aiInsight]);
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-4">

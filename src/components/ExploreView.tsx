@@ -15,7 +15,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Book, Category } from '../types';
-import { BOOKS_DATA, CATEGORIES_LIST } from '../data/booksData';
+import { CATEGORIES_LIST } from '../data/booksData';
+import { useLibrary } from '../context/LibraryContext';
 import { IntelligentSearch } from './IntelligentSearch';
 import { BookCard } from './BookCard';
 import { BookCover } from './BookCover';
@@ -35,6 +36,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
   setActiveTab,
   onFilterCategory
 }) => {
+  const { allBooks } = useLibrary();
   const [activeCuratedTab, setActiveCuratedTab] = useState<'trending' | 'recent' | 'beginner' | 'deep' | 'free'>('trending');
   const [hoveredDeckIndex, setHoveredDeckIndex] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -61,7 +63,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
     'refactoring-ui'
   ];
   const deckBooks = deckBookIds
-    .map(id => BOOKS_DATA.find(b => b.id === id))
+    .map(id => allBooks.find(b => b.id === id))
     .filter(Boolean) as Book[];
 
   // Curated collections
@@ -96,19 +98,19 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
   const tabBooks = React.useMemo(() => {
     switch (activeCuratedTab) {
       case 'trending':
-        return BOOKS_DATA.filter(b => b.isTrending || b.rating >= 4.9).slice(0, 6);
+        return allBooks.filter(b => b.isTrending || b.rating >= 4.9).slice(0, 6);
       case 'recent':
-        return BOOKS_DATA.filter(b => b.isRecentlyAdded || b.publicationYear >= 2021).slice(0, 6);
+        return allBooks.filter(b => b.isRecentlyAdded || b.publicationYear >= 2021 || b.isCommunitySubmission).slice(0, 6);
       case 'beginner':
-        return BOOKS_DATA.filter(b => b.skillLevel === 'Beginner' || b.skillLevel === 'All Levels').slice(0, 6);
+        return allBooks.filter(b => b.skillLevel === 'Beginner' || b.skillLevel === 'All Levels').slice(0, 6);
       case 'deep':
-        return BOOKS_DATA.filter(b => b.skillLevel === 'Advanced' || b.skillLevel === 'Intermediate').slice(0, 6);
+        return allBooks.filter(b => b.skillLevel === 'Advanced' || b.skillLevel === 'Intermediate').slice(0, 6);
       case 'free':
-        return BOOKS_DATA.filter(b => b.isLegallyFree).slice(0, 6);
+        return allBooks.filter(b => b.isLegallyFree).slice(0, 6);
       default:
-        return BOOKS_DATA.slice(0, 6);
+        return allBooks.slice(0, 6);
     }
-  }, [activeCuratedTab]);
+  }, [allBooks, activeCuratedTab]);
 
   const handleScrollToDiscovery = () => {
     const el = document.getElementById('catalog-discovery');
@@ -352,7 +354,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {curatedCollections.map((col, idx) => {
             const books = col.bookIds
-              .map(id => BOOKS_DATA.find(b => b.id === id))
+              .map(id => allBooks.find(b => b.id === id))
               .filter(Boolean) as Book[];
 
             return (
@@ -422,7 +424,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
           {CATEGORIES_LIST.map(category => {
-            const count = BOOKS_DATA.filter(b => b.category === category).length;
+            const count = allBooks.filter(b => b.category === category).length;
             return (
               <button
                 key={category}

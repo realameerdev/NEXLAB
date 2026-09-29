@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { LibrarianMessage, Book } from '../types';
 import { useLibrary } from '../context/LibraryContext';
-import { BOOKS_DATA } from '../data/booksData';
 import { BookCover } from './BookCover';
 
 interface AILibrarianViewProps {
@@ -26,7 +25,7 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
   onSelectBook,
   onOpenReader
 }) => {
-  const { state, isBookSaved, toggleSaveBook, updateProfile } = useLibrary();
+  const { state, allBooks, isBookSaved, toggleSaveBook, updateProfile } = useLibrary();
 
   const [messages, setMessages] = useState<LibrarianMessage[]>([
     {
@@ -112,7 +111,7 @@ Tell me what you are currently learning, building, or aiming to master. I tailor
           content: data.reply,
           timestamp: new Date().toISOString(),
           recommendedBooks: (data.recommendedBookIds || []).map((id: string) => {
-            const b = BOOKS_DATA.find(item => item.id === id);
+            const b = allBooks.find(item => item.id === id);
             return {
               bookId: id,
               rationale: b?.aiRecommendationExplanation || 'Matched to your goal.'
@@ -284,7 +283,7 @@ Tell me what you are currently learning, building, or aiming to master. I tailor
                   </span>
                   <div className="grid gap-2.5">
                     {msg.recommendedBooks.map(({ bookId, rationale }) => {
-                      const book = BOOKS_DATA.find(b => b.id === bookId);
+                      const book = allBooks.find(b => b.id === bookId);
                       if (!book) return null;
                       const saved = isBookSaved(book.id);
 

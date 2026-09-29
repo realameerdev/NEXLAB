@@ -74,6 +74,13 @@ export interface Book {
     pattern: string;
   };
   coverIcon?: string;
+  coverImage?: string;
+  ebookFileData?: string;
+  ebookFileName?: string;
+  isCommunitySubmission?: boolean;
+  sourceType?: 'official' | 'community';
+  uploadedAt?: string;
+  isAdminVerified?: boolean;
   isbn?: string;
   tableOfContents?: string[];
   sampleExcerpt?: string;

@@ -14,7 +14,36 @@ export const BookCover: React.FC<BookCoverProps> = ({ book, size = 'md', classNa
     lg: 'w-56 h-80 text-sm',
   };
 
-  const { from, to, accent, pattern } = book.coverGradient;
+  const coverGradient = book.coverGradient || {
+    from: '#18181b',
+    to: '#FF3700',
+    accent: '#ff7a59',
+    pattern: 'circuits'
+  };
+
+  const { from, to, accent, pattern } = coverGradient;
+
+  if (book.coverImage) {
+    return (
+      <div
+        className={`relative shrink-0 rounded-md overflow-hidden select-none shadow-lg transition-transform duration-300 group-hover:scale-[1.02] ${sizeClasses[size]} ${className}`}
+        style={{
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: '0 8px 24px -6px rgba(0, 0, 0, 0.7), 0 2px 6px rgba(0,0,0,0.4)',
+        }}
+      >
+        <img
+          src={book.coverImage}
+          alt={book.title}
+          className="w-full h-full object-cover"
+        />
+        {/* Spine highlight & shadow */}
+        <div className="absolute inset-y-0 left-0 w-2.5 bg-gradient-to-r from-black/60 via-white/10 to-transparent pointer-events-none z-10" />
+        <div className="absolute inset-y-0 left-2 w-[1px] bg-black/50 pointer-events-none z-10" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-transparent pointer-events-none" />
+      </div>
+    );
+  }
 
   return (
     <div

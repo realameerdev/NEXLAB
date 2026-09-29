@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ShieldCheck, Search, BookOpen, ExternalLink, Download, Sparkles } from 'lucide-react';
 import { Book } from '../types';
-import { BOOKS_DATA } from '../data/booksData';
+import { useLibrary } from '../context/LibraryContext';
 import { BookCard } from './BookCard';
 
 interface FreeLibraryViewProps {
@@ -13,13 +13,14 @@ export const FreeLibraryView: React.FC<FreeLibraryViewProps> = ({
   onSelectBook,
   onOpenReader
 }) => {
+  const { allBooks } = useLibrary();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLicenseType, setSelectedLicenseType] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const freeBooks = useMemo(() => {
-    return BOOKS_DATA.filter(book => book.isLegallyFree);
-  }, []);
+    return allBooks.filter(book => book.isLegallyFree);
+  }, [allBooks]);
 
   const filteredBooks = useMemo(() => {
     return freeBooks.filter(book => {

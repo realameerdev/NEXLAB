@@ -1,15 +1,19 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserLibraryState, UserProfile, ReadingList, BookNote, UserHistoryItem } from '../types';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { UserLibraryState, UserProfile, ReadingList, BookNote, UserHistoryItem, Book } from '../types';
+import { BOOKS_DATA } from '../data/booksData';
 
 const STORAGE_KEY = 'nexlab_user_library_v1';
+const CUSTOM_BOOKS_KEY = 'nexlab_custom_uploaded_books_v1';
+const BUY_ME_COFFEE_URL_KEY = 'nexlab_bmc_url_v1';
+export const DEFAULT_BMC_URL = 'https://buymeacoffee.com/nexlab';
 
 const DEFAULT_PROFILE: UserProfile = {
-  name: 'Alex Vance',
-  handle: '@alexvance',
-  role: 'Full-Stack Software Engineer',
+  name: 'Reader',
+  handle: '@reader',
+  role: 'Software Engineer & Builder',
   interests: ['Distributed Systems', 'Game Engines', 'UI Architecture', 'Foundation Models'],
   dailyReadingMinutes: 30,
-  currentProject: 'Building a real-time collaborative audio workstation',
+  currentProject: 'Reading & Building with NEXLAB',
   skillLevel: 'Intermediate'
 };
 
@@ -120,6 +124,13 @@ const DEFAULT_INITIAL_STATE: UserLibraryState = {
 
 interface LibraryContextType {
   state: UserLibraryState;
+  allBooks: Book[];
+  customBooks: Book[];
+  buyMeACoffeeUrl: string;
+  setBuyMeACoffeeUrl: (url: string) => void;
+  addCustomBook: (book: Book) => void;
+  deleteCustomBook: (bookId: string) => void;
+  getBookById: (id: string) => Book | undefined;
   isBookSaved: (bookId: string) => boolean;
   toggleSaveBook: (bookId: string) => void;
   setReadingStatus: (bookId: string, status: 'want_to_read' | 'reading' | 'completed', currentPage?: number, totalPages?: number) => void;
@@ -152,6 +163,35 @@ export const LibraryProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return DEFAULT_INITIAL_STATE;
   });
 
+  const [customBooks, setCustomBooks] = useState<Book[]>(() => {
+    try {
+      const saved = localStorage.getItem(CUSTOM_BOOKS_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to load custom books from localStorage:', e);
+    }
+    return [];
+  });
+
+  const [buyMeACoffeeUrl, setBuyMeACoffeeUrlState] = useState<string>(() => {
+    try {
+      return localStorage.getItem(BUY_ME_COFFEE_URL_KEY) || DEFAULT_BMC_URL;
+    } catch (e) {
+      return DEFAULT_BMC_URL;
+    }
+  });
+
+  const setBuyMeACoffeeUrl = (url: string) => {
+    setBuyMeACoffeeUrlState(url);
+    try {
+      localStorage.setItem(BUY_ME_COFFEE_URL_KEY, url);
+    } catch (e) {
+      console.error('Failed to save Buy Me a Coffee URL:', e);
+    }
+  };
+
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -159,6 +199,43 @@ export const LibraryProvider: React.FC<{ children: React.ReactNode }> = ({ child
       console.error('Failed to persist user library:', e);
     }
   }, [state]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CUSTOM_BOOKS_KEY, JSON.stringify(customBooks));
+    } catch (e) {
+      console.error('Failed to persist custom books:', e);
+    }
+  }, [customBooks]);
+
+  const allBooks = useMemo(() => {
+    // Custom uploaded books first, then canonical library
+    return [...customBooks, ...BOOKS_DATA];
+  }, [customBooks]);
+
+  const getBookById = (id: string): Book | undefined => {
+    return allBooks.find(b => b.id === id);
+  };
+
+  const addCustomBook = (newBook: Book) => {
+    setCustomBooks(prev => {
+      const filtered = prev.filter(b => b.id !== newBook.id);
+      return [newBook, ...filtered];
+    });
+    recordHistory(newBook.id, 'saved', `Uploaded "${newBook.title}" to library`);
+  };
+
+  const deleteCustomBook = (bookId: string) => {
+    setCustomBooks(prev => prev.filter(b => b.id !== bookId));
+    setState(prev => ({
+      ...prev,
+      savedBookIds: prev.savedBookIds.filter(id => id !== bookId),
+      readingLists: prev.readingLists.map(list => ({
+        ...list,
+        bookIds: list.bookIds.filter(id => id !== bookId)
+      }))
+    }));
+  };
 
   const isBookSaved = (bookId: string) => {
     return state.savedBookIds.includes(bookId);
@@ -424,6 +501,13 @@ export const LibraryProvider: React.FC<{ children: React.ReactNode }> = ({ child
     <LibraryContext.Provider
       value={{
         state,
+        allBooks,
+        customBooks,
+        buyMeACoffeeUrl,
+        setBuyMeACoffeeUrl,
+        addCustomBook,
+        deleteCustomBook,
+        getBookById,
         isBookSaved,
         toggleSaveBook,
         setReadingStatus,

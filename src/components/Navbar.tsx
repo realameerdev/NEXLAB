@@ -8,7 +8,8 @@ import {
   BookOpen,
   Menu,
   X,
-  MapPin
+  MapPin,
+  Upload
 } from 'lucide-react';
 import { useLibrary } from '../context/LibraryContext';
 import { NexlabLogo } from './NexlabLogo';
@@ -19,12 +20,14 @@ interface NavbarProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
   onOpenSearchModal: () => void;
+  onOpenUploadModal: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
-  onOpenSearchModal
+  onOpenSearchModal,
+  onOpenUploadModal
 }) => {
   const { state } = useLibrary();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -87,7 +90,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Right Side: Quick Search, Library Badge, Profile */}
+        {/* Right Side: Quick Search, Upload Book, My Library */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Quick Search Shortcut Trigger */}
           <button
@@ -102,17 +105,29 @@ export const Navbar: React.FC<NavbarProps> = ({
             </kbd>
           </button>
 
+          {/* Upload Book Frontend Action */}
+          <button
+            onClick={onOpenUploadModal}
+            className="inline-flex items-center gap-1.5 py-1.5 px-3 sm:px-3.5 rounded-xl bg-[#FF3700] hover:bg-[#E53100] text-white border border-[#FF3700] text-xs font-bold shadow-md shadow-[#FF3700]/25 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+            title="Upload Ebook (No account required)"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Upload Book</span>
+            <span className="sm:hidden">Upload</span>
+          </button>
+
           {/* My Library Button */}
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer ${
               activeTab === 'dashboard'
-                ? 'bg-[#FF3700] text-white border-[#FF3700] shadow-md shadow-[#FF3700]/25'
+                ? 'bg-zinc-900 text-white border-zinc-900 shadow-sm'
                 : 'bg-white hover:bg-zinc-50 text-zinc-800 border-zinc-200 hover:border-zinc-300'
             }`}
+            title="My Reading Shelf & Saved Books"
           >
-            <Bookmark className={`w-3.5 h-3.5 ${activeTab === 'dashboard' ? 'text-white' : 'text-[#FF3700]'}`} />
-            <span>Library</span>
+            <Bookmark className={`w-3.5 h-3.5 ${activeTab === 'dashboard' ? 'text-[#FF3700]' : 'text-[#FF3700]'}`} />
+            <span className="hidden sm:inline">My Shelf</span>
             {(savedCount > 0 || readingCount > 0) && (
               <span className={`text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded-full border ${
                 activeTab === 'dashboard'
@@ -122,20 +137,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {savedCount}
               </span>
             )}
-          </button>
-
-          {/* User Profile Avatar */}
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 hover:border-[#FF3700]/30 text-xs text-zinc-800 font-semibold transition-colors cursor-pointer"
-            title="View Profile & Dashboard"
-          >
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-[#FF3700] to-[#E62800] border border-white/20 flex items-center justify-center text-[10px] font-mono font-bold text-white shadow-xs">
-              {state.profile.name.charAt(0)}
-            </div>
-            <span className="hidden xl:inline text-xs text-zinc-800 font-semibold truncate max-w-[100px]">
-              {state.profile.name.split(' ')[0]}
-            </span>
           </button>
 
           {/* Mobile Menu Hamburger */}
@@ -170,9 +171,35 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span>{label}</span>
               </button>
             ))}
+
+            <button
+              onClick={() => {
+                setActiveTab('dashboard');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors ${
+                activeTab === 'dashboard'
+                  ? 'bg-[#FF3700]/10 text-[#FF3700] border border-[#FF3700]/25'
+                  : 'text-zinc-800 hover:bg-zinc-50'
+              }`}
+            >
+              <Bookmark className="w-4 h-4 text-[#FF3700]" />
+              <span>My Shelf ({savedCount})</span>
+            </button>
           </div>
 
-          <div className="pt-3 border-t border-zinc-100 flex items-center justify-between">
+          <div className="pt-3 border-t border-zinc-100 flex flex-col gap-2">
+            <button
+              onClick={() => {
+                onOpenUploadModal();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#FF3700] text-xs font-bold text-white shadow-md shadow-[#FF3700]/20"
+            >
+              <Upload className="w-4 h-4" />
+              <span>Upload Book (No Auth Required)</span>
+            </button>
+
             <button
               onClick={() => {
                 onOpenSearchModal();
@@ -181,7 +208,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-zinc-50 text-xs font-bold text-zinc-800 border border-zinc-200 hover:border-[#FF3700]/40 transition-colors"
             >
               <Search className="w-4 h-4 text-[#FF3700]" />
-              <span>Intelligent Search</span>
+              <span>Intelligent Search (⌘K)</span>
             </button>
           </div>
         </div>

@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Layers, Search, Filter, ArrowUpDown } from 'lucide-react';
 import { Book, Category, SkillLevel, BookFormat, LegalAvailability } from '../types';
-import { BOOKS_DATA, CATEGORIES_LIST } from '../data/booksData';
+import { CATEGORIES_LIST } from '../data/booksData';
+import { useLibrary } from '../context/LibraryContext';
 import { BookCard } from './BookCard';
 
 interface CategoriesViewProps {
@@ -15,6 +16,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   onOpenReader,
   initialCategory
 }) => {
+  const { allBooks } = useLibrary();
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>(
     initialCategory || 'all'
   );
@@ -31,7 +33,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   const [sortBy, setSortBy] = useState<'rating' | 'year' | 'title'>('rating');
 
   const filteredBooks = useMemo(() => {
-    return BOOKS_DATA.filter(book => {
+    return allBooks.filter(book => {
       const matchCat = selectedCategory === 'all' || book.category === selectedCategory;
       const matchSearch =
         searchQuery === '' ||
@@ -55,16 +57,16 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
       if (sortBy === 'year') return b.publicationYear - a.publicationYear;
       return a.title.localeCompare(b.title);
     });
-  }, [selectedCategory, searchQuery, skillFilter, formatFilter, availabilityFilter, sortBy]);
+  }, [allBooks, selectedCategory, searchQuery, skillFilter, formatFilter, availabilityFilter, sortBy]);
 
   // Count per category
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     CATEGORIES_LIST.forEach(cat => {
-      counts[cat] = BOOKS_DATA.filter(b => b.category === cat).length;
+      counts[cat] = allBooks.filter(b => b.category === cat).length;
     });
     return counts;
-  }, []);
+  }, [allBooks]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-white">
@@ -92,7 +94,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               : 'bg-white border-zinc-200 hover:border-[#FF3700]/50 text-zinc-700 hover:text-zinc-950'
           }`}
         >
-          All Domains ({BOOKS_DATA.length})
+          All Domains ({allBooks.length})
         </button>
 
         {CATEGORIES_LIST.map(category => {

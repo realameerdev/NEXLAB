@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  User,
   Clock,
   BookOpen,
   CheckCircle2,
@@ -9,13 +8,12 @@ import {
   Plus,
   Trash2,
   Star,
-  Flame,
   ArrowRight,
-  Edit3,
-  Calendar
+  Upload,
+  Layers,
+  FileText
 } from 'lucide-react';
 import { Book } from '../types';
-import { BOOKS_DATA } from '../data/booksData';
 import { READING_PATHS_DATA } from '../data/readingPathsData';
 import { useLibrary } from '../context/LibraryContext';
 import { BookCover } from './BookCover';
@@ -25,38 +23,35 @@ interface DashboardViewProps {
   onSelectBook: (book: Book) => void;
   onOpenReader?: (book: Book) => void;
   onNavigateToPaths?: () => void;
+  onOpenUploadModal?: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   onSelectBook,
   onOpenReader,
-  onNavigateToPaths
+  onNavigateToPaths,
+  onOpenUploadModal
 }) => {
   const {
     state,
+    allBooks,
+    customBooks,
+    deleteCustomBook,
     updateBookProgress,
     createReadingList,
-    deleteReadingList,
-    updateProfile
+    deleteReadingList
   } = useLibrary();
 
-  const [activeSection, setActiveSection] = useState<'overview' | 'saved' | 'lists' | 'history'>('overview');
+  const [activeSection, setActiveSection] = useState<'overview' | 'saved' | 'uploads' | 'lists' | 'history'>('overview');
   const [showCreateListModal, setShowCreateListModal] = useState(false);
   const [newListName, setNewListName] = useState('');
   const [newListDesc, setNewListDesc] = useState('');
-
-  // Profile Edit Modal
-  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-  const [editName, setEditName] = useState(state.profile.name);
-  const [editRole, setEditRole] = useState(state.profile.role);
-  const [editProject, setEditProject] = useState(state.profile.currentProject);
-  const [editDailyMins, setEditDailyMins] = useState(state.profile.dailyReadingMinutes);
 
   // Books currently being read
   const readingBooks = Object.entries(state.readingStatus)
     .filter(([_, record]) => record.status === 'reading')
     .map(([bookId, record]) => {
-      const book = BOOKS_DATA.find(b => b.id === bookId);
+      const book = allBooks.find(b => b.id === bookId);
       return book ? { book, record } : null;
     })
     .filter(Boolean) as { book: Book; record: any }[];
@@ -65,14 +60,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const completedBooks = Object.entries(state.readingStatus)
     .filter(([_, record]) => record.status === 'completed')
     .map(([bookId, record]) => {
-      const book = BOOKS_DATA.find(b => b.id === bookId);
+      const book = allBooks.find(b => b.id === bookId);
       return book ? { book, record } : null;
     })
     .filter(Boolean) as { book: Book; record: any }[];
 
   // Saved books
   const savedBooks = state.savedBookIds
-    .map(id => BOOKS_DATA.find(b => b.id === id))
+    .map(id => allBooks.find(b => b.id === id))
     .filter(Boolean) as Book[];
 
   // Enrolled paths
@@ -80,13 +75,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     .map(id => READING_PATHS_DATA.find(p => p.id === id))
     .filter(Boolean);
 
-  // Personalized recommendations based on user interests
-  const personalizedBooks = BOOKS_DATA.filter(
+  // High-signal recommendations
+  const recommendedBooks = allBooks.filter(
     b =>
       !state.savedBookIds.includes(b.id) &&
-      !state.readingStatus[b.id] &&
-      (state.profile.interests.some(interest => b.topics.includes(interest)) ||
-        b.category === 'Development')
+      !state.readingStatus[b.id]
   ).slice(0, 3);
 
   const handleCreateList = (e: React.FormEvent) => {
@@ -98,25 +91,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     setShowCreateListModal(false);
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateProfile({
-      name: editName,
-      role: editRole,
-      currentProject: editProject,
-      dailyReadingMinutes: editDailyMins
-    });
-    setShowEditProfileModal(false);
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-white">
-      {/* 100% Free & Open / No Auth Banner */}
+      {/* 100% Free & Open / No Auth Reassurance Banner */}
       <div className="p-3.5 sm:p-4 bg-[#FF3700]/[0.04] border border-[#FF3700]/20 rounded-2xl flex items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2.5">
           <span className="w-2 h-2 rounded-full bg-[#FF3700] animate-pulse shrink-0" />
           <span className="text-zinc-800 font-medium">
-            <strong className="text-zinc-950 font-bold">Zero Authentication Required</strong> — All saved books, reading notes, and learning path progress are preserved locally and privately in your browser.
+            <strong className="text-zinc-950 font-bold">No Account Required</strong> — Your saved books, uploaded ebooks, and reading notes persist safely in your browser storage.
           </span>
         </div>
         <span className="text-[11px] font-mono text-[#FF3700] font-bold hidden sm:inline shrink-0">
@@ -124,33 +106,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </span>
       </div>
 
-      {/* User Profile Bar */}
+      {/* Library Shelf Hero Overview */}
       <div className="p-6 sm:p-8 bg-white border border-zinc-200 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#FF3700] border border-[#FF3700] flex items-center justify-center text-xl font-extrabold text-white shadow-lg shadow-[#FF3700]/30 shrink-0">
-            {state.profile.name.charAt(0)}
+          <div className="w-14 h-14 rounded-2xl bg-[#FF3700] flex items-center justify-center text-white shadow-lg shadow-[#FF3700]/30 shrink-0">
+            <Bookmark className="w-7 h-7" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-950 tracking-tight">
-                {state.profile.name}
-              </h1>
-              <span className="text-xs font-semibold text-zinc-400">
-                {state.profile.handle}
-              </span>
-            </div>
-            <p className="text-xs text-[#FF3700] font-bold">
-              {state.profile.role}
+            <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-950 tracking-tight">
+              Personal Reading Shelf
+            </h1>
+            <p className="text-xs text-zinc-500 font-medium mt-0.5">
+              Curate, read, and manage your technical literature & open submissions.
             </p>
-            {state.profile.currentProject && (
-              <p className="text-xs text-zinc-500 mt-1 font-normal">
-                Current Focus: <span className="text-zinc-800 font-semibold">{state.profile.currentProject}</span>
-              </p>
-            )}
           </div>
         </div>
 
-        {/* Quick Stats Grid */}
+        {/* Quick Stats Grid + Upload CTA */}
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 border-t md:border-t-0 md:border-l border-zinc-200 pt-4 md:pt-0 md:pl-6 text-xs">
           <div>
             <span className="text-zinc-500 font-semibold block text-[11px]">Reading</span>
@@ -162,20 +134,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div>
             <span className="text-zinc-500 font-semibold block text-[11px]">Saved Books</span>
-            <span className="text-lg font-extrabold text-[#FF3700]">{savedBooks.length}</span>
+            <span className="text-lg font-extrabold text-zinc-950">{savedBooks.length}</span>
           </div>
           <div>
-            <span className="text-zinc-500 font-semibold block text-[11px]">Daily Target</span>
-            <span className="text-lg font-extrabold text-zinc-950">{state.profile.dailyReadingMinutes}m</span>
+            <span className="text-zinc-500 font-semibold block text-[11px]">My Uploads</span>
+            <span className="text-lg font-extrabold text-purple-600">{customBooks.length}</span>
           </div>
 
-          <button
-            onClick={() => setShowEditProfileModal(true)}
-            className="p-2.5 text-zinc-600 hover:text-[#FF3700] rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-colors cursor-pointer"
-            title="Edit Profile"
-          >
-            <Edit3 className="w-4 h-4" />
-          </button>
+          {onOpenUploadModal && (
+            <button
+              onClick={onOpenUploadModal}
+              className="inline-flex items-center gap-1.5 py-2.5 px-4 rounded-full bg-[#FF3700] hover:bg-[#E53100] text-white text-xs font-bold shadow-md shadow-[#FF3700]/25 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              <span>Upload Book</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -202,6 +176,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           Saved Shelf ({savedBooks.length})
         </button>
         <button
+          onClick={() => setActiveSection('uploads')}
+          className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
+            activeSection === 'uploads'
+              ? 'border-[#FF3700] text-[#FF3700]'
+              : 'border-transparent text-zinc-500 hover:text-zinc-900'
+          }`}
+        >
+          My Uploads ({customBooks.length})
+        </button>
+        <button
           onClick={() => setActiveSection('lists')}
           className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
             activeSection === 'lists'
@@ -219,7 +203,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               : 'border-transparent text-zinc-500 hover:text-zinc-900'
           }`}
         >
-          Reading Activity & History
+          Reading Activity
         </button>
       </div>
 
@@ -238,7 +222,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="p-8 text-center bg-zinc-50 border border-zinc-200 rounded-2xl space-y-2">
                 <BookOpen className="w-8 h-8 text-zinc-400 mx-auto" />
                 <p className="text-xs text-zinc-500">
-                  You are not currently reading any books. Explore the catalog and mark a book as reading.
+                  You are not currently reading any books. Explore the catalog and start reading anytime.
                 </p>
               </div>
             ) : (
@@ -368,18 +352,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           )}
 
-          {/* AI Recommended Books for Profile */}
-          {personalizedBooks.length > 0 && (
+          {/* Curated Recommendations */}
+          {recommendedBooks.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[#FF3700]" />
                 <h2 className="text-xs font-bold text-zinc-900 uppercase tracking-wider font-mono">
-                  Personalized AI Recommendations for You
+                  Recommended High-Signal Literature
                 </h2>
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
-                {personalizedBooks.map(book => (
+                {recommendedBooks.map(book => (
                   <div
                     key={book.id}
                     onClick={() => onSelectBook(book)}
@@ -395,7 +379,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           {book.title}
                         </h4>
                         <p className="text-[11px] text-zinc-500 mt-1 line-clamp-2 leading-relaxed">
-                          {book.aiRecommendationExplanation}
+                          {book.shortDescription}
                         </p>
                       </div>
                     </div>
@@ -403,42 +387,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <div className="mt-3 pt-2 border-t border-zinc-100 flex items-center justify-between text-[11px] text-[#FF3700] font-bold">
                       <span>{book.estimatedReadTime} read</span>
                       <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Completed Books Shelf */}
-          {completedBooks.length > 0 && (
-            <div className="space-y-4">
-              <h2 className="text-xs font-bold text-zinc-900 uppercase tracking-wider font-mono">
-                Completed Books Shelf ({completedBooks.length})
-              </h2>
-
-              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {completedBooks.map(({ book, record }) => (
-                  <div
-                    key={book.id}
-                    onClick={() => onSelectBook(book)}
-                    className="p-3 bg-white border border-zinc-200 hover:border-[#FF3700] rounded-xl flex items-center gap-3 cursor-pointer shadow-sm transition-all"
-                  >
-                    <BookCover book={book} size="sm" />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1 text-[10px] text-[#FF3700] font-mono font-bold">
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span>Completed</span>
-                      </div>
-                      <h4 className="text-xs font-bold text-zinc-950 truncate mt-0.5">
-                        {book.title}
-                      </h4>
-                      {record.rating && (
-                        <div className="flex items-center gap-1 text-[#FF3700] text-[10px] mt-1 font-semibold">
-                          <Star className="w-3 h-3 fill-[#FF3700]" />
-                          <span>{record.rating} / 5</span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))}
@@ -477,7 +425,79 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       )}
 
-      {/* SECTION 3: READING LISTS */}
+      {/* SECTION 3: MY UPLOADS */}
+      {activeSection === 'uploads' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xs font-bold text-zinc-900 uppercase tracking-wider font-mono">
+                My Uploaded Ebooks ({customBooks.length})
+              </h2>
+              <p className="text-xs text-zinc-500 mt-0.5">
+                Ebooks you uploaded directly without an account. Available across the entire NEXLAB library.
+              </p>
+            </div>
+
+            {onOpenUploadModal && (
+              <button
+                onClick={onOpenUploadModal}
+                className="inline-flex items-center gap-1.5 py-2 px-4 rounded-full bg-[#FF3700] hover:bg-[#E53100] text-white text-xs font-bold shadow-sm cursor-pointer"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>Upload Another Ebook</span>
+              </button>
+            )}
+          </div>
+
+          {customBooks.length === 0 ? (
+            <div className="py-16 text-center bg-zinc-50 border border-zinc-200 rounded-3xl space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center mx-auto">
+                <FileText className="w-6 h-6" />
+              </div>
+              <h3 className="text-sm font-bold text-zinc-900">No Custom Ebooks Uploaded Yet</h3>
+              <p className="text-xs text-zinc-500 max-w-md mx-auto">
+                Share open access papers, books, or technical manuscripts. They will be added instantly using the exact same design language.
+              </p>
+              {onOpenUploadModal && (
+                <button
+                  onClick={onOpenUploadModal}
+                  className="mt-2 inline-flex items-center gap-2 py-2.5 px-5 bg-[#FF3700] hover:bg-[#E53100] text-white text-xs font-bold rounded-full shadow-md shadow-[#FF3700]/25 cursor-pointer"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>Upload Ebook Now</span>
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {customBooks.map(book => (
+                <div key={book.id} className="relative group">
+                  <BookCard
+                    book={book}
+                    onSelect={onSelectBook}
+                    onQuickRead={onOpenReader}
+                  />
+                  {/* Quick Remove Option */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm(`Remove "${book.title}" from your uploads?`)) {
+                        deleteCustomBook(book.id);
+                      }
+                    }}
+                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/90 hover:bg-red-50 text-zinc-400 hover:text-red-600 border border-zinc-200 transition-colors cursor-pointer shadow-xs z-20 opacity-0 group-hover:opacity-100"
+                    title="Remove from uploads"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SECTION 4: READING LISTS */}
       {activeSection === 'lists' && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
@@ -496,7 +516,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="grid md:grid-cols-2 gap-4">
             {state.readingLists.map(list => {
               const listBooks = list.bookIds
-                .map(id => BOOKS_DATA.find(b => b.id === id))
+                .map(id => allBooks.find(b => b.id === id))
                 .filter(Boolean) as Book[];
 
               return (
@@ -547,7 +567,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       )}
 
-      {/* SECTION 4: READING HISTORY */}
+      {/* SECTION 5: READING HISTORY */}
       {activeSection === 'history' && (
         <div className="space-y-4">
           <h2 className="text-xs font-bold text-zinc-900 uppercase tracking-wider font-mono">
@@ -562,7 +582,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             ) : (
               <div className="divide-y divide-zinc-100">
                 {state.history.map(item => {
-                  const book = BOOKS_DATA.find(b => b.id === item.bookId);
+                  const book = allBooks.find(b => b.id === item.bookId);
                   return (
                     <div key={item.id} className="py-3 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-3">
@@ -630,75 +650,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className="py-2.5 px-5 bg-[#FF3700] hover:bg-[#E53100] text-white rounded-full font-semibold cursor-pointer shadow-md shadow-[#FF3700]/25 transition-all"
                 >
                   Create List
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Profile Modal */}
-      {showEditProfileModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl">
-            <h3 className="text-lg font-bold text-zinc-950">Edit Personal Reading Profile</h3>
-            <form onSubmit={handleSaveProfile} className="space-y-3 text-xs">
-              <div>
-                <label className="text-zinc-700 font-medium block mb-1">Full Name</label>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={e => setEditName(e.target.value)}
-                  className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900"
-                />
-              </div>
-
-              <div>
-                <label className="text-zinc-700 font-medium block mb-1">Professional Role</label>
-                <input
-                  type="text"
-                  value={editRole}
-                  onChange={e => setEditRole(e.target.value)}
-                  className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900"
-                />
-              </div>
-
-              <div>
-                <label className="text-zinc-700 font-medium block mb-1">What are you currently building?</label>
-                <input
-                  type="text"
-                  value={editProject}
-                  onChange={e => setEditProject(e.target.value)}
-                  className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900"
-                />
-              </div>
-
-              <div>
-                <label className="text-zinc-700 font-medium block mb-1">Daily Reading Target: {editDailyMins} minutes</label>
-                <input
-                  type="range"
-                  min="15"
-                  max="120"
-                  step="15"
-                  value={editDailyMins}
-                  onChange={e => setEditDailyMins(parseInt(e.target.value, 10))}
-                  className="w-full accent-[#FF3700]"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setShowEditProfileModal(false)}
-                  className="py-2 px-4 text-zinc-500 hover:text-zinc-900"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="py-2.5 px-5 bg-[#FF3700] hover:bg-[#E53100] text-white rounded-full font-semibold cursor-pointer shadow-md shadow-[#FF3700]/25 transition-all"
-                >
-                  Save Profile
                 </button>
               </div>
             </form>

@@ -35,6 +35,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
     isBookSaved,
     toggleSaveBook,
     state,
+    allBooks,
     setReadingStatus,
     updateBookProgress,
     addBookNote,
@@ -54,7 +55,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   const [showRatingSaved, setShowRatingSaved] = useState(false);
 
   // Find related books in same category or overlapping topics
-  const relatedBooks = BOOKS_DATA.filter(
+  const relatedBooks = allBooks.filter(
     b => b.id !== book.id && (b.category === book.category || b.topics.some(t => book.topics.includes(t)))
   ).slice(0, 3);
 
@@ -86,6 +87,21 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
             <span>{book.skillLevel}</span>
             <span className="text-zinc-300">/</span>
             <span>{book.format}</span>
+            {book.isCommunitySubmission ? (
+              <>
+                <span className="text-zinc-300">/</span>
+                <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 font-bold border border-purple-200">
+                  Community Upload
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-zinc-300">/</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                  Verified Official
+                </span>
+              </>
+            )}
           </div>
 
           <button

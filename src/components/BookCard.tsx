@@ -38,6 +38,12 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onSelect, onQuickRead 
               <span>{book.skillLevel}</span>
               <span aria-hidden="true" className="text-zinc-300">·</span>
               <span>{book.format}</span>
+              {book.isCommunitySubmission && (
+                <>
+                  <span aria-hidden="true" className="text-zinc-300">·</span>
+                  <span className="text-purple-600 font-bold">Community</span>
+                </>
+              )}
             </div>
 
             {/* Title */}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, X, ArrowRight, Sparkles } from 'lucide-react';
 import { Book } from '../types';
-import { BOOKS_DATA } from '../data/booksData';
+import { useLibrary } from '../context/LibraryContext';
 import { BookCover } from './BookCover';
 
 interface SearchModalProps {
@@ -15,6 +15,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   onClose,
   onSelectBook
 }) => {
+  const { allBooks } = useLibrary();
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   if (!isOpen) return null;
 
   const filtered = query.trim()
-    ? BOOKS_DATA.filter(b => {
+    ? allBooks.filter(b => {
         const q = query.toLowerCase();
         return (
           b.title.toLowerCase().includes(q) ||
@@ -43,7 +44,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           b.topics.some(t => t.toLowerCase().includes(q))
         );
       }).slice(0, 6)
-    : BOOKS_DATA.slice(0, 4);
+    : allBooks.slice(0, 4);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-16 sm:pt-24 p-4 animate-in fade-in duration-200">
