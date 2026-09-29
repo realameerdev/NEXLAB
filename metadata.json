@@ -1,0 +1,7 @@
+{
+  "name": "NEXLAB",
+  "description": "AI-powered digital library and book discovery platform for developers, gamers, designers, founders, and creators. Knowledge for what you're building.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
