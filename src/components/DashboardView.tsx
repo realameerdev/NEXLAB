@@ -114,15 +114,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* User Profile Bar */}
       <div className="p-6 sm:p-8 bg-white border border-zinc-200 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#FF3700] border border-[#FF3700] flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-[#FF3700]/30 shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-[#FF3700] border border-[#FF3700] flex items-center justify-center text-xl font-extrabold text-white shadow-lg shadow-[#FF3700]/30 shrink-0">
             {state.profile.name.charAt(0)}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-zinc-950 tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-950 tracking-tight">
                 {state.profile.name}
               </h1>
-              <span className="text-xs font-mono text-zinc-400">
+              <span className="text-xs font-semibold text-zinc-400">
                 {state.profile.handle}
               </span>
             </div>
@@ -130,8 +130,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {state.profile.role}
             </p>
             {state.profile.currentProject && (
-              <p className="text-xs text-zinc-500 mt-1">
-                Current Focus: <span className="text-zinc-800 font-mono font-medium">{state.profile.currentProject}</span>
+              <p className="text-xs text-zinc-500 mt-1 font-normal">
+                Current Focus: <span className="text-zinc-800 font-semibold">{state.profile.currentProject}</span>
               </p>
             )}
           </div>
@@ -140,20 +140,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Quick Stats Grid */}
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 border-t md:border-t-0 md:border-l border-zinc-200 pt-4 md:pt-0 md:pl-6 text-xs">
           <div>
-            <span className="text-zinc-500 font-mono block">Reading</span>
-            <span className="text-lg font-bold text-zinc-950 font-mono">{readingBooks.length}</span>
+            <span className="text-zinc-500 font-semibold block text-[11px]">Reading</span>
+            <span className="text-lg font-extrabold text-zinc-950">{readingBooks.length}</span>
           </div>
           <div>
-            <span className="text-zinc-500 font-mono block">Completed</span>
-            <span className="text-lg font-bold text-[#FF3700] font-mono">{completedBooks.length}</span>
+            <span className="text-zinc-500 font-semibold block text-[11px]">Completed</span>
+            <span className="text-lg font-extrabold text-[#FF3700]">{completedBooks.length}</span>
           </div>
           <div>
-            <span className="text-zinc-500 font-mono block">Saved Books</span>
-            <span className="text-lg font-bold text-[#FF3700] font-mono">{savedBooks.length}</span>
+            <span className="text-zinc-500 font-semibold block text-[11px]">Saved Books</span>
+            <span className="text-lg font-extrabold text-[#FF3700]">{savedBooks.length}</span>
           </div>
           <div>
-            <span className="text-zinc-500 font-mono block">Daily Target</span>
-            <span className="text-lg font-bold text-zinc-950 font-mono">{state.profile.dailyReadingMinutes}m</span>
+            <span className="text-zinc-500 font-semibold block text-[11px]">Daily Target</span>
+            <span className="text-lg font-extrabold text-zinc-950">{state.profile.dailyReadingMinutes}m</span>
           </div>
 
           <button
@@ -167,10 +167,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex items-center gap-2 border-b border-zinc-200 pb-1">
+      <div className="flex items-center gap-2 border-b border-zinc-200 pb-1 overflow-x-auto scrollbar-none max-w-full">
         <button
           onClick={() => setActiveSection('overview')}
-          className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
+          className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
             activeSection === 'overview'
               ? 'border-[#FF3700] text-[#FF3700]'
               : 'border-transparent text-zinc-500 hover:text-zinc-900'
@@ -180,7 +180,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </button>
         <button
           onClick={() => setActiveSection('saved')}
-          className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
+          className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
             activeSection === 'saved'
               ? 'border-[#FF3700] text-[#FF3700]'
               : 'border-transparent text-zinc-500 hover:text-zinc-900'
@@ -190,7 +190,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </button>
         <button
           onClick={() => setActiveSection('lists')}
-          className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
+          className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
             activeSection === 'lists'
               ? 'border-[#FF3700] text-[#FF3700]'
               : 'border-transparent text-zinc-500 hover:text-zinc-900'
@@ -200,7 +200,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </button>
         <button
           onClick={() => setActiveSection('history')}
-          className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
+          className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
             activeSection === 'history'
               ? 'border-[#FF3700] text-[#FF3700]'
               : 'border-transparent text-zinc-500 hover:text-zinc-900'

@@ -85,12 +85,12 @@ export const FreeLibraryView: React.FC<FreeLibraryViewProps> = ({
         </div>
 
         {/* License Filter */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-zinc-500 font-mono hidden md:inline">License:</span>
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 text-xs">
+          <span className="text-zinc-500 font-semibold hidden md:inline">License:</span>
           <select
             value={selectedLicenseType}
             onChange={e => setSelectedLicenseType(e.target.value)}
-            className="p-2 bg-white border border-zinc-200 rounded-xl text-zinc-800 text-xs focus:outline-none focus:border-[#FF3700]"
+            className="flex-1 sm:flex-initial p-2 bg-white border border-zinc-200 rounded-xl text-zinc-800 text-xs font-medium focus:outline-none focus:border-[#FF3700]"
           >
             <option value="all">All Free Licenses ({freeBooks.length})</option>
             <option value="open access">Open Access</option>
@@ -101,7 +101,7 @@ export const FreeLibraryView: React.FC<FreeLibraryViewProps> = ({
           <select
             value={selectedCategory}
             onChange={e => setSelectedCategory(e.target.value)}
-            className="p-2 bg-white border border-zinc-200 rounded-xl text-zinc-800 text-xs focus:outline-none focus:border-[#FF3700]"
+            className="flex-1 sm:flex-initial p-2 bg-white border border-zinc-200 rounded-xl text-zinc-800 text-xs font-medium focus:outline-none focus:border-[#FF3700]"
           >
             <option value="all">All Categories</option>
             {categoriesAvailable.map(cat => (
@@ -113,8 +113,8 @@ export const FreeLibraryView: React.FC<FreeLibraryViewProps> = ({
 
       {/* Book Grid */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between text-xs text-zinc-500 font-mono">
-          <span>Showing {filteredBooks.length} legally free books</span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs text-zinc-500">
+          <span className="font-medium">Showing {filteredBooks.length} legally free books</span>
           <span className="text-[#FF3700] font-semibold">Open Web Edition + PDF Downloads</span>
         </div>
 
@@ -132,16 +132,16 @@ export const FreeLibraryView: React.FC<FreeLibraryViewProps> = ({
         {filteredBooks.length === 0 && (
           <div className="py-16 text-center space-y-3 bg-zinc-50 border border-zinc-200 rounded-2xl">
             <BookOpen className="w-8 h-8 text-zinc-400 mx-auto" />
-            <p className="text-sm font-medium text-zinc-700">No free books matched your filters.</p>
+            <p className="text-sm font-semibold text-zinc-700">No free books matched your filters.</p>
             <button
               onClick={() => {
                 setSearchQuery('');
                 setSelectedLicenseType('all');
                 setSelectedCategory('all');
               }}
-              className="text-xs font-semibold text-[#FF3700] hover:underline cursor-pointer"
+              className="px-4 py-2 text-xs font-bold text-[#FF3700] bg-white border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors shadow-sm"
             >
-              Reset filters
+              Reset Filters
             </button>
           </div>
         )}

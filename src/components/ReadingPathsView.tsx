@@ -86,21 +86,21 @@ export const ReadingPathsView: React.FC<ReadingPathsViewProps> = ({ onSelectBook
       {/* Hero Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-zinc-200 pb-6">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono font-semibold text-[#FF3700] mb-1">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#FF3700] mb-1">
             <MapPin className="w-4 h-4 text-[#FF3700]" />
             <span>Structured Knowledge Roadmaps</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-950">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-950">
             Curated Reading Paths
           </h1>
-          <p className="text-sm text-zinc-600 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-sm text-zinc-600 mt-1 max-w-2xl leading-relaxed font-normal">
             Sequential, milestone-based reading curricula designed to take you from foundational principles to production-grade architecture.
           </p>
         </div>
 
         <button
           onClick={() => setShowGenerateModal(true)}
-          className="inline-flex items-center gap-2 py-3 px-5 bg-[#FF3700] hover:bg-[#E53100] text-white rounded-full text-xs sm:text-sm font-semibold shadow-xl shadow-[#FF3700]/25 transition-all cursor-pointer shrink-0 hover:scale-105 active:scale-95"
+          className="inline-flex items-center justify-center gap-2 py-3 px-5 bg-[#FF3700] hover:bg-[#E53100] text-white rounded-full text-xs sm:text-sm font-bold shadow-xl shadow-[#FF3700]/25 transition-all cursor-pointer shrink-0 hover:scale-105 active:scale-95"
         >
           <Sparkles className="w-4 h-4" />
           <span>Generate Custom Path with AI</span>
@@ -108,7 +108,7 @@ export const ReadingPathsView: React.FC<ReadingPathsViewProps> = ({ onSelectBook
       </div>
 
       {/* Path Selector Tabs (Interactive horizontal list) */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full">
         {pathsList.map(path => {
           const isSelected = path.id === selectedPath.id;
           const enrolled = state.enrolledPathIds.includes(path.id);
@@ -139,22 +139,22 @@ export const ReadingPathsView: React.FC<ReadingPathsViewProps> = ({ onSelectBook
       <div className="p-6 sm:p-8 bg-gradient-to-br from-white via-zinc-50 to-[#FF3700]/[0.03] border border-[#FF3700]/30 rounded-3xl relative overflow-hidden shadow-xl shadow-[#FF3700]/5">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-3xl">
-            <div className="flex items-center gap-2 text-xs font-mono font-semibold text-[#FF3700]">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#FF3700]">
               <span>{selectedPath.category}</span>
               <span>·</span>
               <span>Target Role: {selectedPath.targetRole}</span>
               <span>·</span>
-              <span className="flex items-center gap-1 text-zinc-500">
+              <span className="flex items-center gap-1 text-zinc-500 font-medium">
                 <Clock className="w-3.5 h-3.5" />
                 ~{selectedPath.estimatedTotalHours} hours total
               </span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">
               {selectedPath.title}
             </h2>
 
-            <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed font-sans">
+            <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed font-normal">
               {selectedPath.description}
             </p>
           </div>
@@ -166,7 +166,7 @@ export const ReadingPathsView: React.FC<ReadingPathsViewProps> = ({ onSelectBook
                   <span>Enrolled In Path</span>
                   <CheckCircle2 className="w-4 h-4 text-[#FF3700]" />
                 </div>
-                <div className="flex items-center justify-between text-[11px] text-zinc-500 font-mono">
+                <div className="flex items-center justify-between text-[11px] text-zinc-500 font-medium">
                   <span>Stage {pathProgress.currentStage} of {selectedPath.stages.length}</span>
                   <span>{Math.round((pathProgress.completedStages.length / selectedPath.stages.length) * 100)}%</span>
                 </div>
@@ -174,7 +174,7 @@ export const ReadingPathsView: React.FC<ReadingPathsViewProps> = ({ onSelectBook
             ) : (
               <button
                 onClick={() => enrollInPath(selectedPath.id)}
-                className="py-3 px-6 bg-[#FF3700] hover:bg-[#E53100] text-white rounded-full text-xs sm:text-sm font-semibold shadow-xl shadow-[#FF3700]/25 transition-all cursor-pointer text-center"
+                className="py-3 px-6 bg-[#FF3700] hover:bg-[#E53100] text-white rounded-full text-xs sm:text-sm font-bold shadow-xl shadow-[#FF3700]/25 transition-all cursor-pointer text-center"
               >
                 Enroll in Path
               </button>
@@ -185,7 +185,7 @@ export const ReadingPathsView: React.FC<ReadingPathsViewProps> = ({ onSelectBook
 
       {/* Sequential Stages Timeline */}
       <div className="space-y-4">
-        <h3 className="text-xs font-bold text-zinc-900 uppercase tracking-wider font-mono">
+        <h3 className="text-xs font-bold text-zinc-900 uppercase tracking-wider">
           Path Milestones & Reading Stages
         </h3>
 

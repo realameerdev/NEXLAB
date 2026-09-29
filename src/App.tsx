@@ -136,12 +136,12 @@ export function AppContent() {
           <div className="flex items-center gap-3">
             <NexlabLogo className="w-6 h-6" glow={false} />
             <div>
-              <span className="font-bold text-zinc-950 font-sans tracking-tight">NEXLAB</span>
-              <span className="text-[11px] text-zinc-500 ml-2">Knowledge for What You’re Building</span>
+              <span className="font-extrabold text-zinc-950 tracking-tight">NEXLAB</span>
+              <span className="text-[11px] text-zinc-500 ml-2 font-normal">Knowledge for What You’re Building</span>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-6 text-zinc-600 font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-zinc-600 font-semibold text-xs">
             <button onClick={() => setActiveTab('explore')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
               Explore
             </button>
@@ -162,7 +162,7 @@ export function AppContent() {
             </button>
           </div>
 
-          <div className="text-[11px] text-zinc-500 font-mono text-center md:text-right">
+          <div className="text-[11px] text-zinc-500 font-medium text-center md:text-right">
             Verified Legal Literature · Zero Pirated Content
           </div>
         </div>

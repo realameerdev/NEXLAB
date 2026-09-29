@@ -138,7 +138,7 @@ Tell me what you are currently learning, building, or aiming to master. I tailor
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 h-[calc(100vh-5rem)] flex flex-col gap-4 bg-white">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6 min-h-[calc(100vh-5rem)] flex flex-col gap-4 bg-white">
       {/* Top Header & Context Bar */}
       <div className="p-4 bg-white border border-zinc-200 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-sm">
         <div className="flex items-center gap-3">
@@ -146,13 +146,13 @@ Tell me what you are currently learning, building, or aiming to master. I tailor
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-zinc-950 flex items-center gap-2">
+            <h2 className="text-base font-extrabold text-zinc-950 flex items-center gap-2">
               <span>NEXLAB AI</span>
-              <span className="text-[10px] font-mono text-[#FF3700] bg-[#FF3700]/10 px-2 py-0.5 rounded-full font-bold">
+              <span className="text-[10px] text-[#FF3700] bg-[#FF3700]/10 px-2 py-0.5 rounded-full font-bold">
                 Personal Librarian
               </span>
             </h2>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-zinc-500 font-normal">
               Curated book intelligence for what you're building
             </p>
           </div>
@@ -162,7 +162,7 @@ Tell me what you are currently learning, building, or aiming to master. I tailor
         <div className="flex items-center gap-2 sm:gap-3 text-xs">
           <button
             onClick={() => setShowConfig(!showConfig)}
-            className="flex items-center gap-1.5 py-1.5 px-3 rounded-full bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 hover:border-[#FF3700]/40 text-zinc-700 font-medium transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 py-1.5 px-3 rounded-full bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 hover:border-[#FF3700]/40 text-zinc-700 font-semibold transition-colors cursor-pointer"
           >
             <Clock className="w-3.5 h-3.5 text-[#FF3700]" />
             <span>{dailyMinutes} min/day</span>
@@ -170,7 +170,7 @@ Tell me what you are currently learning, building, or aiming to master. I tailor
 
           <button
             onClick={() => setShowConfig(!showConfig)}
-            className="hidden sm:flex items-center gap-1.5 py-1.5 px-3 rounded-full bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 hover:border-[#FF3700]/40 text-zinc-700 font-medium transition-colors cursor-pointer max-w-xs truncate"
+            className="hidden sm:flex items-center gap-1.5 py-1.5 px-3 rounded-full bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 hover:border-[#FF3700]/40 text-zinc-700 font-semibold transition-colors cursor-pointer max-w-xs truncate"
           >
             <Briefcase className="w-3.5 h-3.5 text-[#FF3700] shrink-0" />
             <span className="truncate">{currentProjectInput || 'Set Current Project'}</span>
@@ -181,11 +181,11 @@ Tell me what you are currently learning, building, or aiming to master. I tailor
       {/* Context Configuration Drawer */}
       {showConfig && (
         <div className="p-5 bg-zinc-50 border border-zinc-200 rounded-2xl space-y-3 animate-in slide-in-from-top-2 duration-200 shadow-sm">
-          <div className="flex items-center justify-between text-xs font-mono font-bold text-[#FF3700]">
+          <div className="flex items-center justify-between text-xs font-bold text-[#FF3700]">
             <span>Tune Personal Librarian Context</span>
             <button
               onClick={() => setShowConfig(false)}
-              className="text-zinc-500 hover:text-zinc-900 cursor-pointer"
+              className="text-zinc-500 hover:text-zinc-900 font-bold cursor-pointer"
             >
               Done
             </button>
@@ -193,7 +193,7 @@ Tell me what you are currently learning, building, or aiming to master. I tailor
 
           <div className="grid sm:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="text-zinc-700 font-medium block mb-1">
+              <label className="text-zinc-700 font-semibold block mb-1">
                 Daily Available Reading Time: {dailyMinutes} mins
               </label>
               <input
@@ -208,7 +208,7 @@ Tell me what you are currently learning, building, or aiming to master. I tailor
             </div>
 
             <div>
-              <label className="text-zinc-700 font-medium block mb-1">
+              <label className="text-zinc-700 font-semibold block mb-1">
                 What are you currently building?
               </label>
               <input
@@ -216,14 +216,14 @@ Tell me what you are currently learning, building, or aiming to master. I tailor
                 value={currentProjectInput}
                 onChange={e => setCurrentProjectInput(e.target.value)}
                 placeholder="e.g. Real-time game engine, SaaS payment auth, transformer model..."
-                className="w-full p-2.5 bg-white border border-zinc-200 rounded-xl text-zinc-900 text-xs focus:outline-none focus:border-[#FF3700]"
+                className="w-full p-2.5 bg-white border border-zinc-200 rounded-xl text-zinc-900 text-xs font-normal focus:outline-none focus:border-[#FF3700]"
               />
             </div>
           </div>
 
           <button
             onClick={handleUpdateProfileContext}
-            className="py-2 px-5 bg-[#FF3700] hover:bg-[#E53100] text-white rounded-full text-xs font-semibold cursor-pointer shadow-md shadow-[#FF3700]/25 transition-all"
+            className="py-2 px-5 bg-[#FF3700] hover:bg-[#E53100] text-white rounded-full text-xs font-bold cursor-pointer shadow-md shadow-[#FF3700]/25 transition-all"
           >
             Save Context
           </button>

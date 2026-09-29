@@ -124,7 +124,7 @@ export const IntelligentSearch: React.FC<IntelligentSearchProps> = ({
           <button
             onClick={() => handleSynthesize(query)}
             disabled={!query.trim() || isSynthesizing}
-            className="inline-flex items-center gap-2 py-2.5 px-4 sm:px-5 bg-[#FF3700] hover:bg-[#e03000] disabled:opacity-40 disabled:pointer-events-none text-white font-medium text-xs sm:text-sm rounded-xl shadow-md shadow-[#FF3700]/25 transition-all cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 py-2.5 px-4 sm:px-5 bg-[#FF3700] hover:bg-[#e03000] disabled:opacity-40 disabled:pointer-events-none text-white font-bold text-xs sm:text-sm tracking-[-0.01em] rounded-xl shadow-md shadow-[#FF3700]/25 transition-all cursor-pointer shrink-0"
           >
             {isSynthesizing ? (
               <>
@@ -143,12 +143,12 @@ export const IntelligentSearch: React.FC<IntelligentSearchProps> = ({
 
       {/* Example Prompts */}
       <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
-        <span className="text-zinc-600 font-mono tracking-tight">Try:</span>
+        <span className="text-zinc-600 font-semibold tracking-tight">Try:</span>
         {examplePrompts.map((prompt, i) => (
           <button
             key={i}
             onClick={() => handleSelectExample(prompt)}
-            className="text-zinc-600 hover:text-[#FF3700] py-1 px-2.5 rounded-lg bg-zinc-50 hover:bg-[#FF3700]/5 border border-zinc-200 hover:border-[#FF3700]/40 transition-all cursor-pointer text-left font-medium"
+            className="text-zinc-700 hover:text-[#FF3700] py-1 px-3 rounded-full bg-zinc-50 hover:bg-[#FF3700]/5 border border-zinc-200 hover:border-[#FF3700]/40 transition-all cursor-pointer text-left font-semibold text-[11px]"
           >
             "{prompt}"
           </button>

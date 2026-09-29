@@ -110,7 +110,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 {book.isLegallyFree && book.readOnlineUrl && (
                   <button
                     onClick={() => onOpenReader(book)}
-                    className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-full bg-[#FF3700] hover:bg-[#E53100] text-white font-semibold text-xs sm:text-sm shadow-xl shadow-[#FF3700]/25 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-full bg-[#FF3700] hover:bg-[#E53100] text-white font-bold text-xs sm:text-sm shadow-xl shadow-[#FF3700]/25 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <BookOpen className="w-4 h-4" />
                     <span>Read Online</span>
@@ -122,7 +122,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                     href={book.downloadUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-full bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-semibold transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-full bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-bold transition-colors"
                   >
                     <Download className="w-3.5 h-3.5 text-[#FF3700]" />
                     <span>Download Legal Copy</span>
@@ -131,7 +131,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
 
                 <button
                   onClick={() => toggleSaveBook(book.id)}
-                  className={`w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border text-xs font-semibold transition-colors cursor-pointer ${
+                  className={`w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border text-xs font-bold transition-colors cursor-pointer ${
                     saved
                       ? 'bg-[#FF3700] border-[#FF3700] text-white shadow-md shadow-[#FF3700]/20'
                       : 'bg-white hover:bg-zinc-50 border-zinc-200 text-zinc-700 hover:border-[#FF3700]/50'

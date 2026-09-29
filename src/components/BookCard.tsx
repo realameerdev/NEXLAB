@@ -98,7 +98,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onSelect, onQuickRead 
       <div className="mt-3 pt-3 border-t border-zinc-100 flex items-center justify-between gap-2">
         <button
           onClick={() => onSelect(book)}
-          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-medium text-zinc-700 hover:text-white bg-zinc-50 hover:bg-[#FF3700] border border-zinc-200 hover:border-[#FF3700] rounded-xl transition-all cursor-pointer shadow-2xs group/btn"
+          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-zinc-800 hover:text-white bg-zinc-50 hover:bg-[#FF3700] border border-zinc-200 hover:border-[#FF3700] rounded-xl transition-all cursor-pointer shadow-2xs group/btn tracking-[-0.01em]"
         >
           <span>View Book</span>
           <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400 group-hover/btn:text-white group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />

@@ -64,23 +64,23 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-white">
       {/* Header */}
       <div className="space-y-2 border-b border-zinc-200 pb-6">
-        <div className="flex items-center gap-2 text-xs font-mono font-semibold text-[#FF3700]">
+        <div className="flex items-center gap-2 text-xs font-semibold text-[#FF3700]">
           <Layers className="w-4 h-4 text-[#FF3700]" />
           <span>Curated Disciplines & Domains</span>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-950">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-950">
           Explore by Category
         </h1>
-        <p className="text-sm text-zinc-600 max-w-2xl leading-relaxed">
+        <p className="text-sm text-zinc-600 font-normal max-w-2xl leading-relaxed">
           Filter through 15 specialized domains spanning distributed computing, neural networks, game engines, UI ergonomics, and startup strategy.
         </p>
       </div>
 
       {/* Horizontal Category Selector */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full">
         <button
           onClick={() => setSelectedCategory('all')}
-          className={`py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
+          className={`py-2 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border cursor-pointer tracking-[-0.01em] ${
             selectedCategory === 'all'
               ? 'bg-[#FF3700] border-[#FF3700] text-white shadow-md shadow-[#FF3700]/20'
               : 'bg-white border-zinc-200 hover:border-[#FF3700]/50 text-zinc-700 hover:text-zinc-950'
@@ -97,21 +97,21 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer flex items-center gap-1.5 ${
+              className={`py-2 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border cursor-pointer flex items-center gap-1.5 tracking-[-0.01em] ${
                 isSelected
                   ? 'bg-[#FF3700] border-[#FF3700] text-white shadow-md shadow-[#FF3700]/20'
                   : 'bg-white border-zinc-200 hover:border-[#FF3700]/50 text-zinc-700 hover:text-zinc-950'
               }`}
             >
               <span>{category}</span>
-              <span className={`text-[10px] font-mono ${isSelected ? 'text-white/80' : 'text-zinc-400'}`}>({count})</span>
+              <span className={`text-[10px] font-semibold ${isSelected ? 'text-white/80' : 'text-zinc-400'}`}>({count})</span>
             </button>
           );
         })}
       </div>
 
       {/* Filter and Sort Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl p-3 text-xs">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl p-3 text-xs">
         {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
           <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -120,17 +120,17 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder={`Filter ${selectedCategory === 'all' ? 'catalog' : selectedCategory}...`}
-            className="w-full pl-9 pr-3 py-2 bg-white border border-zinc-200 rounded-xl text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-[#FF3700] focus:ring-1 focus:ring-[#FF3700]"
+            className="w-full pl-9 pr-3 py-2 bg-white border border-zinc-200 rounded-xl text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-[#FF3700] focus:ring-1 focus:ring-[#FF3700] font-normal"
           />
         </div>
 
-        {/* Dropdown Filters */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Dropdown Filters - 2 cols on mobile, flex on desktop */}
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
           {/* Skill Level */}
           <select
             value={skillFilter}
             onChange={e => setSkillFilter(e.target.value)}
-            className="p-2 bg-white border border-zinc-200 rounded-xl text-zinc-800 text-xs focus:outline-none focus:border-[#FF3700]"
+            className="p-2 bg-white border border-zinc-200 rounded-xl text-zinc-800 text-xs font-semibold focus:outline-none focus:border-[#FF3700]"
           >
             <option value="all">All Skill Levels</option>
             <option value="Beginner">Beginner</option>
@@ -142,7 +142,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           <select
             value={formatFilter}
             onChange={e => setFormatFilter(e.target.value)}
-            className="p-2 bg-white border border-zinc-200 rounded-xl text-zinc-800 text-xs focus:outline-none focus:border-[#FF3700]"
+            className="p-2 bg-white border border-zinc-200 rounded-xl text-zinc-800 text-xs font-semibold focus:outline-none focus:border-[#FF3700]"
           >
             <option value="all">All Formats</option>
             <option value="Web Interactive">Web Interactive</option>
@@ -155,7 +155,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           <select
             value={availabilityFilter}
             onChange={e => setAvailabilityFilter(e.target.value)}
-            className="p-2 bg-white border border-zinc-200 rounded-xl text-zinc-800 text-xs focus:outline-none focus:border-[#FF3700]"
+            className="p-2 bg-white border border-zinc-200 rounded-xl text-zinc-800 text-xs font-semibold focus:outline-none focus:border-[#FF3700]"
           >
             <option value="all">All Availability</option>
             <option value="free">Free & Legal Open-Access</option>
@@ -168,7 +168,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
-              className="bg-transparent border-none text-zinc-800 text-xs focus:outline-none pr-2 cursor-pointer"
+              className="bg-transparent border-none text-zinc-800 text-xs font-semibold focus:outline-none pr-2 cursor-pointer"
             >
               <option value="rating">Highest Rated</option>
               <option value="year">Publication Year</option>
