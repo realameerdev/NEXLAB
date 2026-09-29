@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ShieldCheck, Search, BookOpen, ExternalLink, Download, Sparkles } from 'lucide-react';
+import { ShieldCheck, Search, BookOpen, ExternalLink, Download, Sparkles, ArrowLeft } from 'lucide-react';
 import { Book } from '../types';
 import { useLibrary } from '../context/LibraryContext';
 import { BookCard } from './BookCard';
@@ -7,11 +7,13 @@ import { BookCard } from './BookCard';
 interface FreeLibraryViewProps {
   onSelectBook: (book: Book) => void;
   onOpenReader: (book: Book) => void;
+  onGoBack?: () => void;
 }
 
 export const FreeLibraryView: React.FC<FreeLibraryViewProps> = ({
   onSelectBook,
-  onOpenReader
+  onOpenReader,
+  onGoBack
 }) => {
   const { allBooks } = useLibrary();
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,7 +46,21 @@ export const FreeLibraryView: React.FC<FreeLibraryViewProps> = ({
   const categoriesAvailable = Array.from(new Set(freeBooks.map(b => b.category)));
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-white">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 bg-white">
+      {/* Top Navigation / Go Back Bar */}
+      {onGoBack && (
+        <div className="flex items-center justify-between gap-3">
+          <button
+            onClick={onGoBack}
+            className="inline-flex items-center gap-2 py-2 px-3.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 hover:border-[#FF3700]/40 text-xs font-bold text-zinc-800 hover:text-zinc-950 transition-all cursor-pointer shadow-xs group"
+            title="Go back to previous view"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#FF3700] group-hover:-translate-x-0.5 transition-transform" />
+            <span>Go Back</span>
+          </button>
+        </div>
+      )}
+
       {/* Header with Legal Guarantee */}
       <div className="space-y-4 border-b border-zinc-200 pb-6">
         <div className="flex items-center gap-2 text-xs font-mono font-semibold text-[#FF3700]">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, X, ArrowRight, Sparkles } from 'lucide-react';
+import { Search, X, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
 import { Book } from '../types';
 import { useLibrary } from '../context/LibraryContext';
 import { BookCover } from './BookCover';
@@ -47,33 +47,40 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     : allBooks.slice(0, 4);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-16 sm:pt-24 p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-12 sm:pt-24 p-3 sm:p-4 animate-in fade-in duration-200">
       <div
         className="w-full max-w-2xl bg-white border border-zinc-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col text-zinc-900"
         onClick={e => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="flex items-center px-5 py-4 border-b border-zinc-200 bg-white">
-          <Search className="w-5 h-5 text-[#FF3700] mr-3 shrink-0" />
+        <div className="flex items-center px-3 sm:px-5 py-3.5 sm:py-4 border-b border-zinc-200 bg-white gap-2">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 transition-colors cursor-pointer shrink-0"
+            title="Go back"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#FF3700]" />
+          </button>
+          <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF3700] shrink-0" />
           <input
             autoFocus
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Search books, authors, systems, categories, or keywords..."
-            className="flex-1 bg-transparent border-none text-sm text-zinc-950 placeholder-zinc-400 focus:outline-none"
+            placeholder="Search books, authors, systems, or keywords..."
+            className="flex-1 bg-transparent border-none text-xs sm:text-sm text-zinc-950 placeholder-zinc-400 focus:outline-none"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 text-zinc-400 hover:text-zinc-900 mr-2 cursor-pointer"
+              className="p-1 text-zinc-400 hover:text-zinc-900 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           )}
           <button
             onClick={onClose}
-            className="text-[11px] font-mono text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200 hover:text-zinc-900 cursor-pointer"
+            className="text-[11px] font-mono text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200 hover:text-zinc-900 cursor-pointer hidden xs:inline"
           >
             ESC
           </button>

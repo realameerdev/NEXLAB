@@ -28,6 +28,7 @@ import { Book, Category } from './types';
 export function AppContent() {
   const { buyMeACoffeeUrl, state } = useLibrary();
   const [activeTab, setActiveTab] = useState<ActiveTab>('explore');
+  const [tabHistory, setTabHistory] = useState<ActiveTab[]>(['explore']);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [readerBook, setReaderBook] = useState<Book | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -36,6 +37,45 @@ export function AppContent() {
   const [draftToastVisible, setDraftToastVisible] = useState(false);
 
   const savedCount = state.savedBookIds.length;
+
+  const navigateTab = (newTab: ActiveTab) => {
+    if (newTab !== activeTab) {
+      setTabHistory(prev => [...prev, newTab]);
+      setActiveTab(newTab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleGoBack = () => {
+    if (readerBook) {
+      setReaderBook(null);
+      return;
+    }
+    if (selectedBook) {
+      setSelectedBook(null);
+      return;
+    }
+    if (isUploadModalOpen) {
+      handleCloseUploadModal();
+      return;
+    }
+    if (isSearchModalOpen) {
+      setIsSearchModalOpen(false);
+      return;
+    }
+    if (tabHistory.length > 1) {
+      const nextHistory = [...tabHistory];
+      nextHistory.pop();
+      const prevTab = nextHistory[nextHistory.length - 1] || 'explore';
+      setTabHistory(nextHistory);
+      setActiveTab(prevTab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (activeTab !== 'explore') {
+      setActiveTab('explore');
+      setTabHistory(['explore']);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // Global keyboard shortcut for search (Cmd+K / Ctrl+K)
   useEffect(() => {
@@ -59,7 +99,7 @@ export function AppContent() {
 
   const handleFilterCategory = (category: Category) => {
     setFilterCategory(category);
-    setActiveTab('categories');
+    navigateTab('categories');
   };
 
   const handleCloseUploadModal = () => {
@@ -84,7 +124,7 @@ export function AppContent() {
       {/* Top Main Navbar */}
       <Navbar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={navigateTab}
         onOpenSearchModal={() => setIsSearchModalOpen(true)}
         onOpenUploadModal={() => setIsUploadModalOpen(true)}
       />
@@ -95,7 +135,7 @@ export function AppContent() {
           <ExploreView
             onSelectBook={handleOpenBook}
             onOpenReader={handleOpenReader}
-            setActiveTab={setActiveTab}
+            setActiveTab={navigateTab}
             onFilterCategory={handleFilterCategory}
           />
         )}
@@ -105,6 +145,7 @@ export function AppContent() {
             onSelectBook={handleOpenBook}
             onOpenReader={handleOpenReader}
             initialCategory={filterCategory}
+            onGoBack={handleGoBack}
           />
         )}
 
@@ -112,12 +153,14 @@ export function AppContent() {
           <FreeLibraryView
             onSelectBook={handleOpenBook}
             onOpenReader={handleOpenReader}
+            onGoBack={handleGoBack}
           />
         )}
 
         {activeTab === 'paths' && (
           <ReadingPathsView
             onSelectBook={handleOpenBook}
+            onGoBack={handleGoBack}
           />
         )}
 
@@ -125,6 +168,7 @@ export function AppContent() {
           <AILibrarianView
             onSelectBook={handleOpenBook}
             onOpenReader={handleOpenReader}
+            onGoBack={handleGoBack}
           />
         )}
 
@@ -132,8 +176,9 @@ export function AppContent() {
           <DashboardView
             onSelectBook={handleOpenBook}
             onOpenReader={handleOpenReader}
-            onNavigateToPaths={() => setActiveTab('paths')}
+            onNavigateToPaths={() => navigateTab('paths')}
             onOpenUploadModal={() => setIsUploadModalOpen(true)}
+            onGoBack={handleGoBack}
           />
         )}
       </main>
@@ -214,7 +259,7 @@ export function AppContent() {
         <div className="grid grid-cols-5 items-center h-14 max-w-lg mx-auto">
           {/* 1. Explore Tab */}
           <button
-            onClick={() => setActiveTab('explore')}
+            onClick={() => navigateTab('explore')}
             className={`flex flex-col items-center justify-center min-h-[44px] py-1 rounded-xl transition-colors cursor-pointer ${
               activeTab === 'explore' ? 'text-[#FF3700]' : 'text-zinc-500 hover:text-zinc-900'
             }`}
@@ -225,7 +270,7 @@ export function AppContent() {
 
           {/* 2. Categories Tab */}
           <button
-            onClick={() => setActiveTab('categories')}
+            onClick={() => navigateTab('categories')}
             className={`flex flex-col items-center justify-center min-h-[44px] py-1 rounded-xl transition-colors cursor-pointer ${
               activeTab === 'categories' ? 'text-[#FF3700]' : 'text-zinc-500 hover:text-zinc-900'
             }`}
@@ -249,7 +294,7 @@ export function AppContent() {
 
           {/* 4. NEXLAB AI Tab */}
           <button
-            onClick={() => setActiveTab('ai')}
+            onClick={() => navigateTab('ai')}
             className={`flex flex-col items-center justify-center min-h-[44px] py-1 rounded-xl transition-colors cursor-pointer ${
               activeTab === 'ai' ? 'text-[#FF3700]' : 'text-zinc-500 hover:text-zinc-900'
             }`}
@@ -260,7 +305,7 @@ export function AppContent() {
 
           {/* 5. My Shelf Tab */}
           <button
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => navigateTab('dashboard')}
             className={`flex flex-col items-center justify-center min-h-[44px] py-1 rounded-xl transition-colors cursor-pointer relative ${
               activeTab === 'dashboard' ? 'text-[#FF3700]' : 'text-zinc-500 hover:text-zinc-900'
             }`}
@@ -291,22 +336,22 @@ export function AppContent() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-zinc-600 font-semibold text-xs">
-              <button onClick={() => setActiveTab('explore')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
+              <button onClick={() => navigateTab('explore')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
                 Explore
               </button>
-              <button onClick={() => setActiveTab('categories')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
+              <button onClick={() => navigateTab('categories')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
                 Categories
               </button>
-              <button onClick={() => setActiveTab('free')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
+              <button onClick={() => navigateTab('free')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
                 Free Library
               </button>
-              <button onClick={() => setActiveTab('paths')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
+              <button onClick={() => navigateTab('paths')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
                 Reading Paths
               </button>
-              <button onClick={() => setActiveTab('ai')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
+              <button onClick={() => navigateTab('ai')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
                 NEXLAB AI
               </button>
-              <button onClick={() => setActiveTab('dashboard')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
+              <button onClick={() => navigateTab('dashboard')} className="hover:text-[#FF3700] transition-colors cursor-pointer">
                 My Shelf
               </button>
             </div>

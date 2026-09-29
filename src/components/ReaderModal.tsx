@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ExternalLink, ShieldCheck, ChevronLeft, ChevronRight, Bookmark } from 'lucide-react';
+import { X, ExternalLink, ShieldCheck, ChevronLeft, ChevronRight, Bookmark, ArrowLeft } from 'lucide-react';
 import { Book } from '../types';
 import { useLibrary } from '../context/LibraryContext';
 
@@ -58,17 +58,26 @@ export const ReaderModal: React.FC<ReaderModalProps> = ({ book, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-white flex flex-col animate-in fade-in duration-200">
       {/* Top Reading Navigation Bar */}
-      <header className="h-14 shrink-0 bg-white border-b border-zinc-200 px-4 sm:px-6 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-[#FF3700] shrink-0">
+      <header className="h-14 shrink-0 bg-white border-b border-zinc-200 px-3 sm:px-6 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <button
+            onClick={onClose}
+            className="inline-flex items-center gap-1.5 py-1.5 px-2.5 sm:px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold transition-all cursor-pointer group shrink-0"
+            title="Go back to library"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-[#FF3700] group-hover:-translate-x-0.5 transition-transform" />
+            <span>Go Back</span>
+          </button>
+
+          <div className="hidden md:flex items-center gap-1.5 text-xs font-mono font-bold text-[#FF3700] shrink-0">
             <ShieldCheck className="w-4 h-4" />
-            <span className="hidden sm:inline">Legal Open Reader</span>
+            <span>Open Reader</span>
           </div>
-          <span className="text-zinc-300 hidden sm:inline">·</span>
-          <h2 className="text-xs sm:text-sm font-bold text-zinc-950 truncate max-w-xs sm:max-w-md">
+          <span className="text-zinc-300 hidden md:inline">·</span>
+          <h2 className="text-xs sm:text-sm font-bold text-zinc-950 truncate max-w-[130px] xs:max-w-xs sm:max-w-md">
             {book.title}
           </h2>
-          <span className="text-zinc-500 text-xs hidden md:inline">by {book.author}</span>
+          <span className="text-zinc-500 text-xs hidden lg:inline">by {book.author}</span>
         </div>
 
         {/* Controls */}

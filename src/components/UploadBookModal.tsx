@@ -16,7 +16,8 @@ import {
   Smartphone,
   CheckCircle2,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  ArrowLeft
 } from 'lucide-react';
 import { Book, Category, SkillLevel, BookFormat, LegalAvailability } from '../types';
 import { useLibrary } from '../context/LibraryContext';
@@ -477,21 +478,30 @@ export const UploadBookModal: React.FC<UploadBookModalProps> = ({
         {/* ========================================================================= */}
         {/* MODAL HEADER                                                              */}
         {/* ========================================================================= */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-zinc-200 bg-white shrink-0 z-20">
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="p-2 rounded-xl bg-[#FF3700]/10 border border-[#FF3700]/20 text-[#FF3700] shrink-0">
+        <div className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-zinc-200 bg-white shrink-0 z-20">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <button
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 py-1.5 px-2.5 sm:px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold transition-all cursor-pointer group shrink-0"
+              title="Go back"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-[#FF3700] group-hover:-translate-x-0.5 transition-transform" />
+              <span>Go Back</span>
+            </button>
+
+            <div className="p-1.5 sm:p-2 rounded-xl bg-[#FF3700]/10 border border-[#FF3700]/20 text-[#FF3700] shrink-0 hidden xs:flex">
               <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h2 className="text-sm sm:text-lg font-extrabold text-zinc-950 tracking-tight truncate">
+                <h2 className="text-xs sm:text-lg font-extrabold text-zinc-950 tracking-tight truncate">
                   {isAdminMode ? 'Admin Ingestion' : 'Upload Ebook'}
                 </h2>
-                <span className="hidden xs:inline text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FF3700]/10 text-[#FF3700] border border-[#FF3700]/20 shrink-0">
+                <span className="hidden sm:inline text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FF3700]/10 text-[#FF3700] border border-[#FF3700]/20 shrink-0">
                   {isAdminMode ? 'Official' : 'Public'}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-zinc-500 font-medium">
+              <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-zinc-500 font-medium">
                 {lastSavedTime ? (
                   <span className="flex items-center gap-1 text-emerald-600 font-medium">
                     <CheckCircle2 className="w-3 h-3" />

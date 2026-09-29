@@ -9,6 +9,7 @@ import {
   Trash2,
   Star,
   ArrowRight,
+  ArrowLeft,
   Upload,
   Layers,
   FileText
@@ -24,13 +25,15 @@ interface DashboardViewProps {
   onOpenReader?: (book: Book) => void;
   onNavigateToPaths?: () => void;
   onOpenUploadModal?: () => void;
+  onGoBack?: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   onSelectBook,
   onOpenReader,
   onNavigateToPaths,
-  onOpenUploadModal
+  onOpenUploadModal,
+  onGoBack
 }) => {
   const {
     state,
@@ -92,7 +95,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-white">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 bg-white">
+      {/* Top Navigation / Go Back Bar */}
+      {onGoBack && (
+        <div className="flex items-center justify-between gap-3">
+          <button
+            onClick={onGoBack}
+            className="inline-flex items-center gap-2 py-2 px-3.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 hover:border-[#FF3700]/40 text-xs font-bold text-zinc-800 hover:text-zinc-950 transition-all cursor-pointer shadow-xs group"
+            title="Go back to previous view"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#FF3700] group-hover:-translate-x-0.5 transition-transform" />
+            <span>Go Back</span>
+          </button>
+        </div>
+      )}
+
       {/* 100% Free & Open / No Auth Reassurance Banner */}
       <div className="p-3.5 sm:p-4 bg-[#FF3700]/[0.04] border border-[#FF3700]/20 rounded-2xl flex items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2.5">

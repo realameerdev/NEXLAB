@@ -11,7 +11,8 @@ import {
   Sparkles,
   Plus,
   Trash2,
-  ListPlus
+  ListPlus,
+  ArrowLeft
 } from 'lucide-react';
 import { Book } from '../types';
 import { BookCover } from './BookCover';
@@ -81,27 +82,38 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
       >
         {/* Top Header Bar */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-zinc-200 bg-white shrink-0">
-          <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-mono text-zinc-500 overflow-x-auto scrollbar-none py-0.5">
-            <span className="text-[#FF3700] font-bold">{book.category}</span>
-            <span className="text-zinc-300">/</span>
-            <span>{book.skillLevel}</span>
-            <span className="text-zinc-300">/</span>
-            <span>{book.format}</span>
-            {book.isCommunitySubmission ? (
-              <>
-                <span className="text-zinc-300">/</span>
-                <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 font-bold border border-purple-200 shrink-0">
-                  Community Upload
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="text-zinc-300">/</span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 shrink-0">
-                  Verified Official
-                </span>
-              </>
-            )}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <button
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 py-1.5 px-2.5 sm:px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold transition-all cursor-pointer group shrink-0"
+              title="Go back"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-[#FF3700] group-hover:-translate-x-0.5 transition-transform" />
+              <span>Go Back</span>
+            </button>
+
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-mono text-zinc-500 overflow-x-auto scrollbar-none py-0.5">
+              <span className="text-[#FF3700] font-bold">{book.category}</span>
+              <span className="text-zinc-300">/</span>
+              <span>{book.skillLevel}</span>
+              <span className="text-zinc-300">/</span>
+              <span>{book.format}</span>
+              {book.isCommunitySubmission ? (
+                <>
+                  <span className="text-zinc-300">/</span>
+                  <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 font-bold border border-purple-200 shrink-0">
+                    Community Upload
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-zinc-300">/</span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 shrink-0">
+                    Verified Official
+                  </span>
+                </>
+              )}
+            </div>
           </div>
 
           <button

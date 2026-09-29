@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Layers, Search, Filter, ArrowUpDown } from 'lucide-react';
+import { Layers, Search, Filter, ArrowUpDown, ArrowLeft } from 'lucide-react';
 import { Book, Category, SkillLevel, BookFormat, LegalAvailability } from '../types';
 import { CATEGORIES_LIST } from '../data/booksData';
 import { useLibrary } from '../context/LibraryContext';
@@ -9,12 +9,14 @@ interface CategoriesViewProps {
   onSelectBook: (book: Book) => void;
   onOpenReader?: (book: Book) => void;
   initialCategory?: Category;
+  onGoBack?: () => void;
 }
 
 export const CategoriesView: React.FC<CategoriesViewProps> = ({
   onSelectBook,
   onOpenReader,
-  initialCategory
+  initialCategory,
+  onGoBack
 }) => {
   const { allBooks } = useLibrary();
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>(
@@ -69,7 +71,32 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   }, [allBooks]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-white">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 bg-white">
+      {/* Top Navigation / Breadcrumb & Go Back Bar */}
+      <div className="flex items-center justify-between gap-3">
+        {onGoBack ? (
+          <button
+            onClick={onGoBack}
+            className="inline-flex items-center gap-2 py-2 px-3.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 hover:border-[#FF3700]/40 text-xs font-bold text-zinc-800 hover:text-zinc-950 transition-all cursor-pointer shadow-xs group"
+            title="Go back to previous view"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#FF3700] group-hover:-translate-x-0.5 transition-transform" />
+            <span>Go Back</span>
+          </button>
+        ) : (
+          <div />
+        )}
+
+        {selectedCategory !== 'all' && (
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className="text-xs font-bold text-[#FF3700] hover:text-[#E53100] transition-colors cursor-pointer"
+          >
+            ← View All Domains
+          </button>
+        )}
+      </div>
+
       {/* Header */}
       <div className="space-y-2 border-b border-zinc-200 pb-6">
         <div className="flex items-center gap-2 text-xs font-semibold text-[#FF3700]">
@@ -77,10 +104,12 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           <span>Curated Disciplines & Domains</span>
         </div>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-950">
-          Explore by Category
+          {selectedCategory === 'all' ? 'Explore by Category' : selectedCategory}
         </h1>
         <p className="text-sm text-zinc-600 font-normal max-w-2xl leading-relaxed">
-          Filter through 15 specialized domains spanning distributed computing, neural networks, game engines, UI ergonomics, and startup strategy.
+          {selectedCategory === 'all'
+            ? 'Filter through 15 specialized domains spanning distributed computing, neural networks, game engines, UI ergonomics, and startup strategy.'
+            : `Curated high-signal engineering and craftsmanship literature for ${selectedCategory}.`}
         </p>
       </div>
 
