@@ -5,7 +5,7 @@ import { BOOKS_DATA } from '../data/booksData';
 const STORAGE_KEY = 'nexlab_user_library_v1';
 const CUSTOM_BOOKS_KEY = 'nexlab_custom_uploaded_books_v1';
 const BUY_ME_COFFEE_URL_KEY = 'nexlab_bmc_url_v1';
-export const DEFAULT_BMC_URL = 'https://buymeacoffee.com/nexlab';
+export const DEFAULT_BMC_URL = 'https://devameer.xyz/buy-me-a-coffee';
 
 const DEFAULT_PROFILE: UserProfile = {
   name: 'Reader',
@@ -177,7 +177,11 @@ export const LibraryProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const [buyMeACoffeeUrl, setBuyMeACoffeeUrlState] = useState<string>(() => {
     try {
-      return localStorage.getItem(BUY_ME_COFFEE_URL_KEY) || DEFAULT_BMC_URL;
+      const saved = localStorage.getItem(BUY_ME_COFFEE_URL_KEY);
+      if (saved && !saved.includes('buymeacoffee.com/nexlab')) {
+        return saved;
+      }
+      return DEFAULT_BMC_URL;
     } catch (e) {
       return DEFAULT_BMC_URL;
     }
