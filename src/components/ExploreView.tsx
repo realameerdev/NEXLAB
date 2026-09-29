@@ -110,12 +110,19 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
     }
   }, [activeCuratedTab]);
 
+  const handleScrollToDiscovery = () => {
+    const el = document.getElementById('catalog-discovery');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="space-y-20 pb-20 bg-white">
+    <div className="space-y-20 pb-20 bg-white overflow-x-clip">
       {/* ========================================================================= */}
       {/* PALLET ROSS HERO SECTION: Editorial Title + Fanned Interactive Deck       */}
       {/* ========================================================================= */}
-      <section className="relative pt-10 sm:pt-20 pb-12 sm:pb-16 overflow-hidden">
+      <section className="relative pt-10 sm:pt-20 pb-12 sm:pb-16 overflow-x-clip">
         {/* Subtle warm silky radial background glow */}
         <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-b from-[#FF3700]/[0.06] via-[#FF3700]/[0.02] to-transparent blur-[120px] rounded-full pointer-events-none" />
 
@@ -142,7 +149,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
           {/* Primary & Secondary CTAs (Manrope 700 buttons) */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 w-full max-w-md mx-auto sm:max-w-none">
             <button
-              onClick={() => setActiveTab('categories')}
+              onClick={handleScrollToDiscovery}
               className="w-full sm:w-auto py-3.5 px-8 rounded-full bg-[#FF3700] hover:bg-[#E53100] text-white font-bold text-sm sm:text-base tracking-[-0.01em] shadow-xl shadow-[#FF3700]/25 transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
             >
               Explore Library
@@ -157,62 +164,68 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
           </div>
 
           {/* ========================================================================= */}
-          {/* PALLET ROSS FANNED DECK INTERACTION WITH FLOATING TESTIMONIAL PILLS       */}
+          {/* BUILDER SOCIAL PROOF STRIP (Placed safely above deck without collision)    */}
           {/* ========================================================================= */}
-          <div className="pt-8 sm:pt-10 pb-4 relative max-w-5xl mx-auto select-none">
-            {/* Floating Reader Badge 1 (Left - Desktop) */}
-            <div className="hidden lg:flex items-center gap-3 absolute top-6 left-2 z-30 bg-white/95 backdrop-blur-md border border-zinc-200/80 rounded-2xl p-3.5 shadow-xl shadow-zinc-900/5 max-w-xs text-left transition-all hover:scale-105 duration-300">
-              <div className="w-10 h-10 rounded-full bg-[#FF3700]/10 border border-[#FF3700]/20 flex items-center justify-center text-[#FF3700] font-bold text-xs shrink-0">
-                SC
-              </div>
-              <div className="text-xs">
-                <div className="flex items-center gap-1 text-[#FF3700] mb-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3 h-3 fill-[#FF3700]" />
-                  ))}
-                </div>
-                <p className="font-semibold text-zinc-900 text-[11px] leading-tight">
-                  “Designing Data-Intensive Applications was the blueprint for our platform.”
-                </p>
-                <span className="text-[10px] text-zinc-500 font-medium">Sarah C. · Staff Eng</span>
-              </div>
-            </div>
-
-            {/* Floating Reader Badge 2 (Right - Desktop) */}
-            <div className="hidden lg:flex items-center gap-3 absolute top-12 right-2 z-30 bg-white/95 backdrop-blur-md border border-zinc-200/80 rounded-2xl p-3.5 shadow-xl shadow-zinc-900/5 max-w-xs text-left transition-all hover:scale-105 duration-300">
-              <div className="w-10 h-10 rounded-full bg-[#FF3700]/10 border border-[#FF3700]/20 flex items-center justify-center text-[#FF3700] font-bold text-xs shrink-0">
-                MR
-              </div>
-              <div className="text-xs">
-                <div className="flex items-center gap-1 text-[#FF3700] mb-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3 h-3 fill-[#FF3700]" />
-                  ))}
-                </div>
-                <p className="font-semibold text-zinc-900 text-[11px] leading-tight">
-                  “Found The Mom Test before speaking with 40 B2B buyers. Saved 6 months.”
-                </p>
-                <span className="text-[10px] text-zinc-500 font-medium">Marcus R. · Founder</span>
-              </div>
-            </div>
-
-            {/* Floating Center Pill: Community Metric (Manrope 600) */}
-            <div className="inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-zinc-50 border border-zinc-200 text-zinc-700 text-[11px] sm:text-xs font-semibold mb-6 shadow-sm max-w-full">
+          <div className="pt-6 sm:pt-8 max-w-4xl mx-auto">
+            {/* Center Pill: Community Metric (Manrope 600) */}
+            <div className="inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-zinc-50 border border-zinc-200 text-zinc-700 text-[11px] sm:text-xs font-semibold mb-4 shadow-xs max-w-full">
               <Users className="w-3.5 h-3.5 text-[#FF3700] shrink-0" />
               <span>Over <strong className="text-zinc-950 font-bold">45,000+</strong> builders discovering curated titles</span>
               <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-[#FF3700]" />
-              <span className="text-[#FF3700] font-bold text-[11px] hidden sm:inline">Verified Legal</span>
+              <span className="text-[#FF3700] font-bold text-[11px] hidden sm:inline">100% Free · No Auth Needed</span>
             </div>
 
+            {/* Testimonials Side by Side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl mx-auto text-left">
+              <div className="flex items-center gap-3 bg-white/95 backdrop-blur-md border border-zinc-200/90 rounded-2xl p-3 shadow-sm hover:border-[#FF3700]/30 transition-all">
+                <div className="w-8 h-8 rounded-full bg-[#FF3700]/10 border border-[#FF3700]/20 flex items-center justify-center text-[#FF3700] font-bold text-[11px] shrink-0">
+                  SC
+                </div>
+                <div className="text-xs">
+                  <div className="flex items-center gap-1 text-[#FF3700] mb-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-2.5 h-2.5 fill-[#FF3700]" />
+                    ))}
+                  </div>
+                  <p className="font-semibold text-zinc-900 text-[11px] leading-tight">
+                    “Designing Data-Intensive Applications was the blueprint for our platform.”
+                  </p>
+                  <span className="text-[10px] text-zinc-500 font-medium">Sarah C. · Staff Eng</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 bg-white/95 backdrop-blur-md border border-zinc-200/90 rounded-2xl p-3 shadow-sm hover:border-[#FF3700]/30 transition-all">
+                <div className="w-8 h-8 rounded-full bg-[#FF3700]/10 border border-[#FF3700]/20 flex items-center justify-center text-[#FF3700] font-bold text-[11px] shrink-0">
+                  MR
+                </div>
+                <div className="text-xs">
+                  <div className="flex items-center gap-1 text-[#FF3700] mb-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-2.5 h-2.5 fill-[#FF3700]" />
+                    ))}
+                  </div>
+                  <p className="font-semibold text-zinc-900 text-[11px] leading-tight">
+                    “Found The Mom Test before speaking with 40 buyers. Saved 6 months.”
+                  </p>
+                  <span className="text-[10px] text-zinc-500 font-medium">Marcus R. · Founder</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* PALLET ROSS FANNED DECK INTERACTION (Dedicated space, zero clipping)       */}
+          {/* ========================================================================= */}
+          <div className="pt-6 sm:pt-8 pb-4 relative max-w-5xl mx-auto select-none overflow-visible">
             {/* The Fanned Deck of 5 Books (100% Mobile Responsive) */}
-            <div className="relative h-[270px] sm:h-[350px] md:h-[400px] flex items-center justify-center overflow-hidden sm:overflow-visible">
+            <div className="relative h-[290px] sm:h-[350px] md:h-[400px] flex items-center justify-center overflow-visible">
               {deckBooks.map((book, index) => {
                 // Calculate rotation and horizontal offset for fanned arc
                 const count = deckBooks.length;
                 const offsetFromCenter = index - Math.floor(count / 2); // -2, -1, 0, 1, 2
-                const rotation = offsetFromCenter * (isMobile ? 5 : 7); // -10deg to 10deg on mobile
-                const translateX = offsetFromCenter * (isMobile ? 28 : 65); // tightly proportioned on mobile
-                const translateY = Math.abs(offsetFromCenter) * (isMobile ? 8 : 12);
+                const rotation = offsetFromCenter * (isMobile ? 4 : 7); // gentle tilt
+                const translateX = offsetFromCenter * (isMobile ? 26 : 65); // tightly proportioned
+                const translateY = Math.abs(offsetFromCenter) * (isMobile ? 6 : 12);
                 const isHovered = hoveredDeckIndex === index;
 
                 return (
@@ -230,7 +243,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
                     }}
                     className="absolute cursor-pointer group touch-manipulation"
                   >
-                    <div className="w-[130px] sm:w-[185px] md:w-[220px] bg-white rounded-2xl p-2 sm:p-2.5 md:p-3 border border-zinc-200/90 shadow-2xl shadow-zinc-950/15 group-hover:border-[#FF3700] group-hover:shadow-[#FF3700]/20 transition-all duration-300">
+                    <div className="w-[130px] sm:w-[185px] md:w-[220px] bg-white rounded-2xl p-2 sm:p-2.5 md:p-3 border border-zinc-200/90 shadow-xl shadow-zinc-950/10 group-hover:border-[#FF3700] group-hover:shadow-[#FF3700]/20 transition-all duration-300">
                       <div className="aspect-[3/4] w-full rounded-xl overflow-hidden shadow-inner">
                         <BookCover book={book} size={isMobile ? "sm" : "md"} className="w-full h-full" />
                       </div>
@@ -251,7 +264,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
               })}
             </div>
 
-            <p className="text-[11px] sm:text-xs text-zinc-400 font-medium pt-2">
+            <p className="text-[11px] sm:text-xs text-zinc-400 font-medium pt-3">
               Hover over cards to inspect · Click any title for syllabus, reader & preview
             </p>
           </div>
@@ -269,7 +282,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
       {/* ========================================================================= */}
       {/* DISCOVER & TRENDING SECTION (Pure White & Red)                            */}
       {/* ========================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <section id="catalog-discovery" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 scroll-mt-20">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-zinc-200 pb-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-mono font-semibold text-[#FF3700] mb-1">

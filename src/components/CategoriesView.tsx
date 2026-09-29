@@ -18,6 +18,12 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>(
     initialCategory || 'all'
   );
+
+  React.useEffect(() => {
+    if (initialCategory) {
+      setSelectedCategory(initialCategory);
+    }
+  }, [initialCategory]);
   const [searchQuery, setSearchQuery] = useState('');
   const [skillFilter, setSkillFilter] = useState<string>('all');
   const [formatFilter, setFormatFilter] = useState<string>('all');

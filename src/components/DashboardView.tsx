@@ -111,6 +111,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-white">
+      {/* 100% Free & Open / No Auth Banner */}
+      <div className="p-3.5 sm:p-4 bg-[#FF3700]/[0.04] border border-[#FF3700]/20 rounded-2xl flex items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2.5">
+          <span className="w-2 h-2 rounded-full bg-[#FF3700] animate-pulse shrink-0" />
+          <span className="text-zinc-800 font-medium">
+            <strong className="text-zinc-950 font-bold">Zero Authentication Required</strong> — All saved books, reading notes, and learning path progress are preserved locally and privately in your browser.
+          </span>
+        </div>
+        <span className="text-[11px] font-mono text-[#FF3700] font-bold hidden sm:inline shrink-0">
+          Local Storage Active
+        </span>
+      </div>
+
       {/* User Profile Bar */}
       <div className="p-6 sm:p-8 bg-white border border-zinc-200 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden shadow-sm">
         <div className="flex items-center gap-4">

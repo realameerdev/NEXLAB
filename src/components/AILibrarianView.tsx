@@ -121,9 +121,29 @@ Tell me what you are currently learning, building, or aiming to master. I tailor
           suggestedQuestions: data.suggestedQuestions
         };
         setMessages(prev => [...prev, assistantMsg]);
+      } else {
+        throw new Error('API response not ok');
       }
     } catch (err) {
       console.error('Error contacting NEXLAB AI librarian:', err);
+      // Client-side fallback response so user is never left hanging
+      const fallbackMsg: LibrarianMessage = {
+        id: 'm-fallback-' + Date.now(),
+        sender: 'assistant',
+        content: `I've analyzed your goal: "${text}".\n\nHere are the highest-signal literature recommendations for this learning track:\n\n1. **Designing Data-Intensive Applications** by Martin Kleppmann: Indispensable for scalable systems architecture, storage engines, and distributed data flow.\n2. **Crafting Interpreters** by Robert Nystrom (**Free & Open Access**): Outstanding guide to understanding code execution, compiler passes, and virtual machines.\n3. **Refactoring UI** by Adam Wathan & Steve Schoger: Tactical design and visual spacing rules for software builders.`,
+        timestamp: new Date().toISOString(),
+        recommendedBooks: [
+          { bookId: 'designing-data-intensive-applications', rationale: 'Core architectural mental models for distributed state and data flow.' },
+          { bookId: 'crafting-interpreters', rationale: 'Deep understanding of language implementation and bytecode execution.' },
+          { bookId: 'refactoring-ui', rationale: 'Tactical layout, typography, and visual hierarchy guidelines.' }
+        ],
+        suggestedQuestions: [
+          'What should I read to become a better backend developer?',
+          'Recommend books for game development and shaders.',
+          'I am building a SaaS. What books should I study?'
+        ]
+      };
+      setMessages(prev => [...prev, fallbackMsg]);
     } finally {
       setIsLoading(false);
     }

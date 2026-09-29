@@ -28,6 +28,73 @@ if (apiKey) {
   });
 }
 
+// Latest Google candidate models in priority order
+// Prioritizing models with separate quotas so gemini-3.8-flash token exhaustion automatically rotates
+const CANDIDATE_MODELS = [
+  'gemini-flash-latest',
+  'gemini-3.1-flash-lite',
+  'gemini-3.8-flash'
+];
+
+// Track quota-exhausted models with expiry (15 mins)
+const quotaExhaustedMap = new Map<string, number>();
+
+async function generateWithGemini(params: {
+  contents: string;
+  systemInstruction?: string;
+  responseMimeType?: string;
+  temperature?: number;
+}): Promise<string | null> {
+  if (!ai) return null;
+  const now = Date.now();
+
+  for (const model of CANDIDATE_MODELS) {
+    const exhaustedUntil = quotaExhaustedMap.get(model);
+    if (exhaustedUntil && now < exhaustedUntil) {
+      // Model is temporarily quota-exhausted, skip to next candidate
+      continue;
+    }
+
+    try {
+      const config: any = {
+        temperature: params.temperature ?? 0.7,
+      };
+      if (params.systemInstruction) {
+        config.systemInstruction = params.systemInstruction;
+      }
+      if (params.responseMimeType) {
+        config.responseMimeType = params.responseMimeType;
+      }
+
+      // 5-second timeout per model to ensure snappy UX
+      const timeoutPromise = new Promise<null>((_, reject) =>
+        setTimeout(() => reject(new Error(`Timeout on model ${model}`)), 5000)
+      );
+
+      const generatePromise = ai.models.generateContent({
+        model: model,
+        contents: params.contents,
+        config: config,
+      }).then(res => res?.text || null);
+
+      const text = await Promise.race([generatePromise, timeoutPromise]);
+      if (text) {
+        return text;
+      }
+    } catch (err: any) {
+      const errMsg = String(err?.message || err);
+      if (errMsg.includes('resource_exhausted') || errMsg.includes('Quota exceeded') || err?.status === 429) {
+        console.warn(`[Gemini API] Quota exhausted for ${model}, rotating to alternative model.`);
+        quotaExhaustedMap.set(model, now + 15 * 60 * 1000);
+      } else {
+        console.warn(`[Gemini API] Model ${model} unavailable:`, errMsg);
+      }
+      // Attempt next candidate model
+    }
+  }
+  return null;
+}
+
 // Fallback catalog summary for context
 const CATALOG_SUMMARY = `
 NEXLAB Catalog Highlights:
@@ -63,14 +130,12 @@ app.post('/api/gemini/librarian', async (req: Request, res: Response) => {
     const { messages, userProfile, currentGoal } = req.body;
     const lastUserMessage = messages?.[messages.length - 1]?.content || 'Hello';
 
-    if (ai) {
-      const systemInstruction = `You are NEXLAB AI, the world-class personal digital librarian for developers, gamers, designers, content creators, founders, researchers, and technology professionals.
+    const systemInstruction = `You are NEXLAB AI, the personal digital librarian for developers, gamers, designers, content creators, founders, researchers, and technology professionals.
 Tagline: "Knowledge for What You’re Building."
 Your core purpose: discover and recommend the exact right books that match what the user is currently learning, building, or trying to achieve.
 
 Behavior & Tone:
 - Professional, knowledgeable, insightful, encouraging, and razor-sharp.
-- Think: Linear + modern digital library + AI research assistant.
 - Recommend books from the catalog or classic literature that match their user goal, skill level, current project, and available reading time.
 - For EVERY recommendation, explain clearly WHY this book matches their exact goal.
 - Highlight when books are legally free / open access (e.g. Crafting Interpreters, Game Programming Patterns, Deep Learning, SICP, Book of Shaders, Nature of Code, Shape Up, Eloquent JavaScript, Pro Git).
@@ -88,23 +153,19 @@ Available Catalog:
 ${CATALOG_SUMMARY}
 `;
 
-      const prompt = `Conversation history:
+    const prompt = `Conversation history:
 ${(messages || []).slice(-6).map((m: any) => `${m.sender === 'user' ? 'User' : 'NEXLAB AI'}: ${m.content}`).join('\n')}
 
 User: ${lastUserMessage}
 Respond as NEXLAB AI.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents: prompt,
-        config: {
-          systemInstruction: systemInstruction,
-          temperature: 0.7,
-        },
-      });
+    const replyText = await generateWithGemini({
+      contents: prompt,
+      systemInstruction: systemInstruction,
+      temperature: 0.7,
+    });
 
-      const replyText = response.text || 'I am ready to assist your reading journey.';
-
+    if (replyText) {
       // Extract book IDs mentioned
       const detectedBookIds: string[] = [];
       const idMap: Record<string, string> = {
@@ -155,7 +216,7 @@ Respond as NEXLAB AI.`;
       });
     }
 
-    // High-quality fallback if API key is not yet set
+    // High-quality trained fallback if Gemini model is in temporary high-demand
     const fallbackResponse = generateCuratedLibrarianResponse(lastUserMessage, userProfile);
     return res.json(fallbackResponse);
   } catch (error: any) {
@@ -173,8 +234,7 @@ app.post('/api/gemini/intelligent-search', async (req: Request, res: Response) =
       return res.status(400).json({ error: 'Query is required' });
     }
 
-    if (ai) {
-      const prompt = `A user of the NEXLAB digital library is asking:
+    const prompt = `A user of the NEXLAB digital library is asking:
 "${query}"
 
 Based on the NEXLAB catalog below, provide:
@@ -196,21 +256,18 @@ Format your output as JSON with this structure:
 }
 `;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.4,
-        },
-      });
+    const rawJson = await generateWithGemini({
+      contents: prompt,
+      responseMimeType: 'application/json',
+      temperature: 0.4,
+    });
 
-      const text = response.text?.trim() || '{}';
+    if (rawJson) {
       try {
-        const parsed = JSON.parse(text);
+        const parsed = JSON.parse(rawJson);
         return res.json(parsed);
       } catch {
-        // Continue to fallback if parsing fails
+        // Fall through to curated search
       }
     }
 
@@ -228,8 +285,7 @@ Format your output as JSON with this structure:
 app.post('/api/gemini/generate-path', async (req: Request, res: Response) => {
   try {
     const { goal, currentLevel, weeklyHours } = req.body;
-    if (ai) {
-      const prompt = `Generate a rigorous, multi-stage reading path for:
+    const prompt = `Generate a rigorous, multi-stage reading path for:
 Goal: "${goal}"
 Current Level: "${currentLevel || 'Intermediate'}"
 Weekly Available Hours: ${weeklyHours || 5} hours/week
@@ -256,57 +312,144 @@ Return JSON strictly formatted:
   ]
 }`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.5,
-        },
-      });
+    const rawJson = await generateWithGemini({
+      contents: prompt,
+      responseMimeType: 'application/json',
+      temperature: 0.5,
+    });
 
-      const parsed = JSON.parse(response.text || '{}');
-      return res.json(parsed);
+    if (rawJson) {
+      try {
+        const parsed = JSON.parse(rawJson);
+        return res.json(parsed);
+      } catch {
+        // Fall through to domain-synthesized path
+      }
     }
 
-    // Default synthesized path
-    return res.json({
-      title: `Path: ${goal}`,
-      tagline: 'Customized progression toward architectural mastery',
-      description: `A curated progression tailored specifically for your target objective: ${goal}.`,
-      estimatedTotalHours: 48,
+    // Domain-aware synthesized path
+    const fallbackPath = generateCuratedPath(goal);
+    return res.json(fallbackPath);
+  } catch (error: any) {
+    console.error('Error in /api/gemini/generate-path:', error);
+    const fallbackPath = generateCuratedPath(req.body?.goal || 'Architectural Mastery');
+    return res.json(fallbackPath);
+  }
+});
+
+function generateCuratedPath(goal: string) {
+  const g = (goal || '').toLowerCase();
+  if (g.includes('backend') || g.includes('distributed') || g.includes('database')) {
+    return {
+      title: `Path: Advanced Backend & Distributed Systems`,
+      tagline: 'Mastering data engines, replication, and concurrency invariants',
+      description: `Structured progression from core clean architecture to distributed consensus and resilient transaction pipelines for ${goal}.`,
+      estimatedTotalHours: 54,
       stages: [
         {
           order: 1,
-          name: 'Core Foundations & Mental Models',
-          summary: 'Establish theoretical ground truth and eliminate conceptual blind spots.',
-          recommendedBookIds: ['pragmatic-programmer'],
-          milestoneGoal: 'Write an architectural design spike outlining your technical invariants.',
+          name: 'Clean Code & Concurrency Fundamentals',
+          summary: 'Eliminate code smells and structure decoupled domain services.',
+          recommendedBookIds: ['clean-code-martin', 'pragmatic-programmer'],
+          milestoneGoal: 'Refactor a monolithic service into decoupled modules with pure unit tests.',
           estimatedHours: 12
         },
         {
           order: 2,
-          name: 'Applied Implementation & Tooling',
-          summary: 'Build concrete working prototypes and explore design trade-offs.',
-          recommendedBookIds: ['crafting-interpreters', 'designing-data-intensive-applications'],
-          milestoneGoal: 'Implement the core subsystem with automated test suites.',
-          estimatedHours: 18
+          name: 'Storage Engines & Query Access Patterns',
+          summary: 'Deep dive into LSM-trees, B-trees, indexing, and WAL journaling.',
+          recommendedBookIds: ['designing-data-intensive-applications'],
+          milestoneGoal: 'Benchmark read/write amplification across Postgres and Redis for a high-throughput endpoint.',
+          estimatedHours: 16
         },
         {
           order: 3,
-          name: 'Production Hardening & Ergonomics',
-          summary: 'Refine performance, security, and human-centered user experience.',
-          recommendedBookIds: ['refactoring-ui', 'the-design-of-everyday-things'],
-          milestoneGoal: 'Ship an end-to-end milestone to production.',
-          estimatedHours: 18
+          name: 'Distributed Consensus & Replication',
+          summary: 'Understand leader election, Raft, partition tolerance, and eventual consistency.',
+          recommendedBookIds: ['designing-data-intensive-applications'],
+          milestoneGoal: 'Implement an idempotent event-driven queue with distributed idempotency keys.',
+          estimatedHours: 14
+        },
+        {
+          order: 4,
+          name: 'Threat Modeling & Defensive Operations',
+          summary: 'Secure API gateways and model STRIDE threats across boundary surfaces.',
+          recommendedBookIds: ['threat-modeling-shostack'],
+          milestoneGoal: 'Publish a threat model document and verify zero-trust authentication.',
+          estimatedHours: 12
         }
       ]
-    });
-  } catch (error: any) {
-    console.error('Error in /api/gemini/generate-path:', error);
-    return res.status(500).json({ error: 'Failed to generate path' });
+    };
   }
-});
+
+  if (g.includes('game') || g.includes('unreal') || g.includes('unity') || g.includes('shader')) {
+    return {
+      title: `Path: Game Architecture & Shader Mathematics`,
+      tagline: 'From component patterns to real-time procedural rendering',
+      description: `Comprehensive roadmap covering game loops, decoupled entity-component systems, physics simulation, and GLSL fragment shaders.`,
+      estimatedTotalHours: 48,
+      stages: [
+        {
+          order: 1,
+          name: 'Game Programming Patterns & Decoupling',
+          summary: 'Master Entity-Component-System, Object Pools, and Event Queues to maintain 60+ FPS.',
+          recommendedBookIds: ['game-programming-patterns'],
+          milestoneGoal: 'Build a decoupled game loop with object pool allocation in C++ or C#.',
+          estimatedHours: 14
+        },
+        {
+          order: 2,
+          name: 'Mathematical Physics & Autonomous Agents',
+          summary: 'Simulate Newtonian forces, particle systems, and Craig Reynolds steering behaviors.',
+          recommendedBookIds: ['nature-of-code'],
+          milestoneGoal: 'Implement an autonomous boids flocking simulation with spatial obstacle avoidance.',
+          estimatedHours: 14
+        },
+        {
+          order: 3,
+          name: 'Fragment Shaders & Procedural Lighting',
+          summary: 'Harness GPU parallelism with GLSL raymarching, Signed Distance Fields, and noise.',
+          recommendedBookIds: ['the-book-of-shaders'],
+          milestoneGoal: 'Render an interactive raymarched 3D scene in WebGL with ambient occlusion.',
+          estimatedHours: 20
+        }
+      ]
+    };
+  }
+
+  return {
+    title: `Path: ${goal}`,
+    tagline: 'Customized progression toward architectural mastery',
+    description: `A curated progression tailored specifically for your target objective: ${goal}.`,
+    estimatedTotalHours: 48,
+    stages: [
+      {
+        order: 1,
+        name: 'Core Foundations & Mental Models',
+        summary: 'Establish theoretical ground truth and eliminate conceptual blind spots.',
+        recommendedBookIds: ['pragmatic-programmer'],
+        milestoneGoal: 'Write an architectural design spike outlining your technical invariants.',
+        estimatedHours: 12
+      },
+      {
+        order: 2,
+        name: 'Applied Implementation & Tooling',
+        summary: 'Build concrete working prototypes and explore design trade-offs.',
+        recommendedBookIds: ['crafting-interpreters', 'designing-data-intensive-applications'],
+        milestoneGoal: 'Implement the core subsystem with automated test suites.',
+        estimatedHours: 18
+      },
+      {
+        order: 3,
+        name: 'Production Hardening & Ergonomics',
+        summary: 'Refine performance, security, and human-centered user experience.',
+        recommendedBookIds: ['refactoring-ui', 'the-design-of-everyday-things'],
+        milestoneGoal: 'Ship an end-to-end milestone to production.',
+        estimatedHours: 18
+      }
+    ]
+  };
+}
 
 // Curated fallbacks for graceful offline/keyless reliability
 function generateCuratedLibrarianResponse(query: string, profile: any) {
@@ -394,8 +537,92 @@ If you want to simulate physics (vectors, gravity, spring oscillation), add **Th
     };
   }
 
+  if (q.includes('content') || q.includes('creator') || q.includes('strategy') || q.includes('audience') || q.includes('write')) {
+    return {
+      reply: `For content creators, technical writers, and audience builders:
+
+1. **Show Your Work!** by Austin Kleon: The manifesto for building an authentic audience by sharing your process, experiments, and daily discoveries instead of pretending to be a genius.
+2. **Refactoring UI** by Adam Wathan & Steve Schoger: Polish your graphics, slide decks, and digital media with rock-solid visual hierarchy and typography rules.
+3. **The Mom Test** by Rob Fitzpatrick: Crucial for understanding what your audience actually values and will pay for versus polite praise.`,
+      recommendedBookIds: ['show-your-work', 'refactoring-ui', 'the-mom-test'],
+      suggestedQuestions: [
+        'How do I build in public without giving away core advantages?',
+        'What is the daily documentation habit recommended in Show Your Work?',
+        'How can technical founders write engaging technical essays?'
+      ]
+    };
+  }
+
+  if (q.includes('security') || q.includes('cyber') || q.includes('threat') || q.includes('auth') || q.includes('fintech')) {
+    return {
+      reply: `For cybersecurity, secure software architecture, and fintech platforms:
+
+1. **Threat Modeling: Designing for Security** by Adam Shostack: The definitive guide on STRIDE threat matrices, finding flaws before attackers do, and designing resilient boundaries.
+2. **Designing Data-Intensive Applications** by Martin Kleppmann: Critical for understanding immutable audit logs, ACID transactions, and distributed consensus required for fintech systems.
+3. **Clean Code** by Robert C. Martin: Minimize security vulnerabilities caused by spaghetti logic, ambiguous side-effects, and unhandled edge cases.`,
+      recommendedBookIds: ['threat-modeling-shostack', 'designing-data-intensive-applications', 'clean-code-martin'],
+      suggestedQuestions: [
+        'How do I author a STRIDE threat model document?',
+        'What are the consensus guarantees needed for financial transactions?',
+        'How do I securely audit authentication boundaries?'
+      ]
+    };
+  }
+
+  if (q.includes('30 min') || q.includes('schedule') || q.includes('time') || q.includes('busy') || q.includes('plan')) {
+    return {
+      reply: `With **30 minutes a day**, you can comfortably complete **12 to 15 high-signal technical books per year** using our micro-cadence approach:
+
+- **Daily Protocol (20-25 mins)**: Read 1 focused chapter subsection (approx. 10–15 pages).
+- **Daily Reflection (5 mins)**: Write 1 one-sentence architectural insight or note in your personal library.
+
+**Recommended 90-Day Starter Sprint (30 mins/day)**:
+1. **Weeks 1–3**: *The Pragmatic Programmer* (bite-sized, modular tips).
+2. **Weeks 4–8**: *Designing Data-Intensive Applications* (read one subsection of Chapter 3/Storage Engines each evening).
+3. **Weeks 9–12**: *Refactoring UI* (visual, tactical design rules for devs).`,
+      recommendedBookIds: ['pragmatic-programmer', 'designing-data-intensive-applications', 'refactoring-ui'],
+      suggestedQuestions: [
+        'How do I maintain reading momentum with a demanding job?',
+        'Should I take notes or highlight while reading?',
+        'Which chapters in Kleppmann are highest leverage?'
+      ]
+    };
+  }
+
+  if (q.includes('python') || q.includes('data') || q.includes('pandas') || q.includes('analytics')) {
+    return {
+      reply: `For mastering data engineering and Python data science:
+
+1. **Python for Data Analysis (3rd Edition)** by Wes McKinney (Creator of pandas, **Free Open Access**): Learn practical data wrangling, NumPy vectorized arrays, and time series manipulation from the library creator.
+2. **Dive into Deep Learning (D2L.ai)** (**Free Open Access**): Implement PyTorch and JAX tensor operations directly in interactive runnable notebooks.
+3. **Designing Data-Intensive Applications** by Martin Kleppmann: Essential for bridging the gap between batch analytics and streaming data pipelines.`,
+      recommendedBookIds: ['python-for-data-analysis', 'dive-into-deep-learning', 'designing-data-intensive-applications'],
+      suggestedQuestions: [
+        'What are the core performance differences between pandas and Polars?',
+        'How should I transition from data analysis to deep learning models?',
+        'Where can I find free datasets to practice pandas wrangling?'
+      ]
+    };
+  }
+
+  if (q.includes('compiler') || q.includes('interpreter') || q.includes('virtual machine') || q.includes('sicp') || q.includes('language')) {
+    return {
+      reply: `For programming language implementation and runtime internals:
+
+1. **Crafting Interpreters** by Robert Nystrom (**Free & Open Access**): The most engaging programming book ever written. You build an AST tree-walk interpreter in Java and an industrial-strength bytecode VM with garbage collector in C.
+2. **Structure and Interpretation of Computer Programs (SICP)** by Harold Abelson & Gerald Jay Sussman (**Free & Open Access**): The classic MIT foundational text that teaches you to conceptualize programs as data and meta-linguistic abstraction.
+3. **Sketch of the Analytical Engine** by Ada Lovelace (**Public Domain**): The original 1843 paper demonstrating the world's first computer algorithm and computational universalism.`,
+      recommendedBookIds: ['crafting-interpreters', 'sicp', 'ada-lovelace-analytical-engine'],
+      suggestedQuestions: [
+        'Should I start with jlox (tree-walk) or clox (bytecode VM)?',
+        'How does recursive descent parsing handle operator precedence?',
+        'Why is Scheme/Lisp used in SICP for metalinguistic abstraction?'
+      ]
+    };
+  }
+
   return {
-    reply: `Welcome to **NEXLAB**. I am your personal digital librarian.
+    reply: `Welcome to **NEXLAB AI**. I am your personal digital librarian.
 
 Tell me what you are currently learning, building, or trying to achieve—whether that is mastering distributed backend systems, writing a game engine, shipping a SaaS product, learning fragment shaders, or diving into deep learning.
 
@@ -443,6 +670,47 @@ function generateCuratedSearchResponse(query: string) {
         { bookId: 'shape-up', rationale: 'Basecamp method to ship concrete MVPs without getting bogged down in backlog churn.' }
       ],
       relatedTopics: ['Customer Discovery', 'Transformers', 'Fixed Appetite Scoping', 'Unit Economics']
+    };
+  }
+  if (q.includes('backend') || q.includes('system') || q.includes('database') || q.includes('distributed') || q.includes('fintech')) {
+    return {
+      synthesizedInsight: "Robust backend systems rely on solid data modeling, clear concurrency boundaries, and an understanding of storage engine trade-offs (LSM-trees vs B-trees) under high network partitions.",
+      recommendations: [
+        { bookId: 'designing-data-intensive-applications', rationale: 'The seminal guide to distributed consensus, transactions, replication, and data models.' },
+        { bookId: 'crafting-interpreters', rationale: 'Master low-level virtual machines, memory allocation, and execution stacks.' },
+        { bookId: 'clean-code-martin', rationale: 'Maintain clear separation of domain layers and resilient defensive programming.' }
+      ],
+      relatedTopics: ['LSM-Trees', 'Distributed Consensus', 'Eventual Consistency', 'Idempotency Keys']
+    };
+  }
+  if (q.includes('security') || q.includes('cyber') || q.includes('auth')) {
+    return {
+      synthesizedInsight: "Proactive security requires threat modeling during architecture design rather than patching vulnerabilities after deployment. STRIDE analysis exposes attack vectors early.",
+      recommendations: [
+        { bookId: 'threat-modeling-shostack', rationale: 'Actionable STRIDE threat trees and security architecture design.' },
+        { bookId: 'designing-data-intensive-applications', rationale: 'Secure multi-tenant replication and tamper-evident write-ahead logs.' }
+      ],
+      relatedTopics: ['STRIDE Model', 'Boundary Auditing', 'Least Privilege', 'Cryptographic Nonces']
+    };
+  }
+  if (q.includes('content') || q.includes('write') || q.includes('creator')) {
+    return {
+      synthesizedInsight: "Building an audience as a creator or founder starts with showing your work and sharing your learning process rather than waiting for an elusive masterpiece.",
+      recommendations: [
+        { bookId: 'show-your-work', rationale: 'The blueprint for daily documentation, generosity, and authentic discovery.' },
+        { bookId: 'refactoring-ui', rationale: 'Elevate visual polish for media, diagrams, and digital products.' }
+      ],
+      relatedTopics: ['Building in Public', 'Documentation Habit', 'Visual Hierarchy', 'Personal Distribution']
+    };
+  }
+  if (q.includes('python') || q.includes('data')) {
+    return {
+      synthesizedInsight: "Data engineering begins with fast vectorized in-memory transformations before moving to distributed batch and streaming pipelines.",
+      recommendations: [
+        { bookId: 'python-for-data-analysis', rationale: 'Official guide to pandas, NumPy, and structured time series wrangling.' },
+        { bookId: 'dive-into-deep-learning', rationale: 'Hands-on interactive neural architectures with runnable code.' }
+      ],
+      relatedTopics: ['Vectorization', 'Pandas & Polars', 'Tensors', 'Data Pipelines']
     };
   }
   return {
