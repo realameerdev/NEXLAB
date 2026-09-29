@@ -37,6 +37,8 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
     toggleSaveBook,
     state,
     allBooks,
+    customBooks,
+    deleteCustomBook,
     setReadingStatus,
     updateBookProgress,
     addBookNote,
@@ -47,6 +49,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
 
   const saved = isBookSaved(book.id);
   const readingRecord = state.readingStatus[book.id];
+  const isCustomUpload = customBooks.some(b => b.id === book.id) || !!book.isCommunitySubmission;
 
   const [activeTab, setActiveTab] = useState<'overview' | 'notes' | 'lists'>('overview');
   const [newNoteText, setNewNoteText] = useState('');
@@ -169,6 +172,22 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                   {saved ? <Check className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
                   <span>{saved ? 'Saved in Personal Shelf' : 'Save to Shelf'}</span>
                 </button>
+
+                {/* If Custom Uploaded Ebook: Provide Delete Action */}
+                {isCustomUpload && (
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Are you sure you want to delete "${book.title}" from your uploaded books?`)) {
+                        deleteCustomBook(book.id);
+                        onClose();
+                      }
+                    }}
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                    <span>Delete Ebook from Uploads</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -614,6 +633,44 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
               </div>
             </div>
           )}
+        </div>
+
+        {/* Bottom Persistent Bar (Convenient 1-Tap Go Back & Mobile Actions) */}
+        <div className="p-3 sm:p-4 bg-zinc-50 border-t border-zinc-200 flex items-center justify-between gap-3 shrink-0">
+          <button
+            onClick={onClose}
+            className="inline-flex items-center gap-2 py-2 px-4 rounded-xl bg-white hover:bg-zinc-100 border border-zinc-200 text-xs font-bold text-zinc-800 transition-all cursor-pointer shadow-2xs group"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#FF3700] group-hover:-translate-x-0.5 transition-transform" />
+            <span>Go Back</span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            {isCustomUpload && (
+              <button
+                onClick={() => {
+                  if (window.confirm(`Are you sure you want to delete "${book.title}" from your uploaded books?`)) {
+                    deleteCustomBook(book.id);
+                    onClose();
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 py-2 px-3.5 rounded-xl bg-white hover:bg-red-50 text-red-600 border border-zinc-200 hover:border-red-300 text-xs font-bold transition-colors cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Delete Ebook</span>
+              </button>
+            )}
+
+            {book.isLegallyFree && (book.readOnlineUrl || book.ebookFileData) && onOpenReader && (
+              <button
+                onClick={() => onOpenReader(book)}
+                className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl bg-[#FF3700] hover:bg-[#E53100] text-white text-xs font-bold shadow-md shadow-[#FF3700]/25 transition-all cursor-pointer"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Read Online</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

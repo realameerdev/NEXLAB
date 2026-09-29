@@ -308,6 +308,55 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             )}
           </div>
 
+          {/* My Uploads Preview (If any exist) */}
+          {customBooks.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-purple-600" />
+                  <h2 className="text-xs font-bold text-zinc-900 uppercase tracking-wider font-mono">
+                    My Uploads ({customBooks.length})
+                  </h2>
+                </div>
+                <button
+                  onClick={() => setActiveSection('uploads')}
+                  className="text-xs text-[#FF3700] hover:text-[#E53100] inline-flex items-center gap-1 cursor-pointer font-semibold"
+                >
+                  <span>Manage all uploads</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {customBooks.slice(0, 2).map(book => (
+                  <div key={book.id} className="relative bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-xs hover:border-[#FF3700]/40 transition-all">
+                    <div className="bg-zinc-50 px-3.5 py-1.5 border-b border-zinc-200 flex items-center justify-between text-xs">
+                      <span className="text-[10px] font-mono font-bold text-purple-700">Uploaded Ebook</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(`Delete "${book.title}" from your uploads?`)) {
+                            deleteCustomBook(book.id);
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-red-600 hover:text-red-700 cursor-pointer"
+                        title="Delete ebook"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                    <BookCard
+                      book={book}
+                      onSelect={onSelectBook}
+                      onQuickRead={onOpenReader}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Current Reading Paths */}
           {enrolledPaths.length > 0 && (
             <div className="space-y-4">
@@ -445,20 +494,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* SECTION 3: MY UPLOADS */}
       {activeSection === 'uploads' && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-xs font-bold text-zinc-900 uppercase tracking-wider font-mono">
-                My Uploaded Ebooks ({customBooks.length})
+              <h2 className="text-sm font-bold text-zinc-900 uppercase tracking-wider font-mono flex items-center gap-2">
+                <span>My Uploaded Ebooks</span>
+                <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs font-bold font-sans">
+                  {customBooks.length}
+                </span>
               </h2>
               <p className="text-xs text-zinc-500 mt-0.5">
-                Ebooks you uploaded directly without an account. Available across the entire NEXLAB library.
+                Ebooks you uploaded to NEXLAB. Saved locally in your browser storage with offline reader support.
               </p>
             </div>
 
             {onOpenUploadModal && (
               <button
                 onClick={onOpenUploadModal}
-                className="inline-flex items-center gap-1.5 py-2 px-4 rounded-full bg-[#FF3700] hover:bg-[#E53100] text-white text-xs font-bold shadow-sm cursor-pointer"
+                className="inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-full bg-[#FF3700] hover:bg-[#E53100] text-white text-xs font-bold shadow-md shadow-[#FF3700]/20 cursor-pointer self-start sm:self-auto"
               >
                 <Upload className="w-3.5 h-3.5" />
                 <span>Upload Another Ebook</span>
@@ -467,7 +519,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {customBooks.length === 0 ? (
-            <div className="py-16 text-center bg-zinc-50 border border-zinc-200 rounded-3xl space-y-3">
+            <div className="py-12 sm:py-16 text-center bg-zinc-50 border border-zinc-200 rounded-3xl space-y-3 px-4">
               <div className="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center mx-auto">
                 <FileText className="w-6 h-6" />
               </div>
@@ -488,25 +540,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {customBooks.map(book => (
-                <div key={book.id} className="relative group">
+                <div key={book.id} className="relative bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-xs hover:border-[#FF3700]/40 transition-all">
+                  {/* Top Bar for Uploaded Book with Always Visible Delete Button */}
+                  <div className="bg-zinc-50 px-3.5 py-2 border-b border-zinc-200 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-purple-700">
+                      <span className="w-2 h-2 rounded-full bg-purple-600" />
+                      <span>Custom Uploaded Ebook</span>
+                    </div>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm(`Are you sure you want to delete "${book.title}" from your uploads?`)) {
+                          deleteCustomBook(book.id);
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 py-1 px-2.5 rounded-lg bg-white hover:bg-red-50 text-red-600 hover:text-red-700 border border-zinc-200 hover:border-red-200 text-[11px] font-bold transition-colors cursor-pointer shadow-2xs"
+                      title={`Delete ${book.title}`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+
                   <BookCard
                     book={book}
                     onSelect={onSelectBook}
                     onQuickRead={onOpenReader}
                   />
-                  {/* Quick Remove Option */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (window.confirm(`Remove "${book.title}" from your uploads?`)) {
-                        deleteCustomBook(book.id);
-                      }
-                    }}
-                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/90 hover:bg-red-50 text-zinc-400 hover:text-red-600 border border-zinc-200 transition-colors cursor-pointer shadow-xs z-20 opacity-0 group-hover:opacity-100"
-                    title="Remove from uploads"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
                 </div>
               ))}
             </div>

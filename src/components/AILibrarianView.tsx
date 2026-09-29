@@ -179,20 +179,20 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-6 h-[calc(100dvh-4rem-3.8rem)] md:h-[calc(100vh-5rem)] flex flex-col gap-3 bg-white">
+    <div className="max-w-5xl mx-auto px-3 sm:px-6 py-2 sm:py-5 h-[calc(100dvh-8rem)] sm:h-[calc(100vh-5.5rem)] max-h-[100dvh] flex flex-col gap-2.5 sm:gap-3 bg-white">
       {/* ========================================================================= */}
       {/* TOP COMPACT HEADER & CONTEXT BAR                                          */}
       {/* ========================================================================= */}
-      <div className="p-3 sm:p-4 bg-white border border-zinc-200 rounded-2xl flex items-center justify-between gap-2 sm:gap-4 shadow-sm shrink-0">
+      <div className="p-2.5 sm:p-4 bg-white border border-zinc-200 rounded-2xl flex items-center justify-between gap-2 sm:gap-4 shadow-xs shrink-0">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {onGoBack && (
             <button
               onClick={onGoBack}
-              className="inline-flex items-center gap-1.5 py-1.5 px-2.5 sm:px-3 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 hover:border-[#FF3700]/40 text-xs font-bold text-zinc-800 hover:text-zinc-950 transition-all cursor-pointer shadow-xs group shrink-0"
-              title="Go back"
+              className="inline-flex items-center gap-1.5 py-1.5 px-2.5 sm:px-3 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 hover:border-[#FF3700]/40 text-xs font-bold text-zinc-800 hover:text-zinc-950 transition-all cursor-pointer shadow-2xs group shrink-0"
+              title="Go back to previous screen"
             >
               <ArrowLeft className="w-3.5 h-3.5 text-[#FF3700] group-hover:-translate-x-0.5 transition-transform" />
-              <span className="hidden xs:inline">Go Back</span>
+              <span className="inline font-bold">Go Back</span>
             </button>
           )}
 
@@ -207,7 +207,7 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
                 Librarian
               </span>
             </h2>
-            <p className="text-[10px] sm:text-xs text-zinc-500 font-normal truncate hidden xs:block">
+            <p className="text-[10px] sm:text-xs text-zinc-500 font-normal truncate hidden sm:block">
               Tailored book intelligence for what you're building
             </p>
           </div>
@@ -217,7 +217,7 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
         <div className="flex items-center gap-1.5 sm:gap-2 text-xs shrink-0">
           <button
             onClick={() => setShowConfig(!showConfig)}
-            className={`flex items-center gap-1.5 py-1.5 px-2.5 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-1 py-1.5 px-2 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
               showConfig
                 ? 'bg-[#FF3700] text-white border-[#FF3700] shadow-sm'
                 : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-700 hover:border-[#FF3700]/40'
@@ -231,7 +231,7 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
 
           <button
             onClick={handleResetConversation}
-            className="p-2 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-xl transition-colors cursor-pointer"
+            className="p-1.5 sm:p-2 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-xl transition-colors cursor-pointer"
             title="Reset conversation"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -243,7 +243,7 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
       {/* CONTEXT CONFIGURATION DRAWER                                              */}
       {/* ========================================================================= */}
       {showConfig && (
-        <div className="p-4 sm:p-5 bg-zinc-50 border border-zinc-200 rounded-2xl space-y-4 animate-in slide-in-from-top-2 duration-200 shadow-sm shrink-0">
+        <div className="p-3.5 sm:p-5 bg-zinc-50 border border-zinc-200 rounded-2xl space-y-3 sm:space-y-4 animate-in slide-in-from-top-2 duration-200 shadow-sm shrink-0">
           <div className="flex items-center justify-between text-xs font-bold text-[#FF3700]">
             <div className="flex items-center gap-1.5">
               <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -288,7 +288,7 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
                 type="text"
                 value={currentProjectInput}
                 onChange={e => setCurrentProjectInput(e.target.value)}
-                placeholder="e.g. Distributed database, Indie SaaS, Game shaders..."
+                placeholder="e.g. Distributed systems, Indie SaaS, 3D Shaders..."
                 className="w-full p-2 bg-zinc-50 border border-zinc-200 rounded-lg text-zinc-900 text-xs font-normal focus:outline-none focus:border-[#FF3700] focus:bg-white transition-colors"
               />
             </div>
@@ -308,7 +308,7 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
       {/* ========================================================================= */}
       {/* CHAT MESSAGES SCROLL CONTAINER                                            */}
       {/* ========================================================================= */}
-      <div className="flex-1 overflow-y-auto overscroll-contain space-y-4 sm:space-y-6 pr-1 sm:pr-2 scrollbar-none">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain space-y-3 sm:space-y-5 pr-1 sm:pr-2 scrollbar-none">
         {messages.map(msg => (
           <div
             key={msg.id}
@@ -323,10 +323,10 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
 
             {/* Bubble */}
             <div
-              className={`max-w-[94%] sm:max-w-2xl rounded-2xl p-3.5 sm:p-5 text-xs sm:text-sm leading-relaxed ${
+              className={`max-w-[96%] sm:max-w-2xl rounded-2xl p-3 sm:p-5 text-xs sm:text-sm leading-relaxed ${
                 msg.sender === 'user'
                   ? 'bg-[#FF3700] text-white rounded-tr-xs shadow-md shadow-[#FF3700]/20 font-medium'
-                  : 'bg-white border border-zinc-200 text-zinc-800 rounded-tl-xs space-y-3 shadow-sm'
+                  : 'bg-white border border-zinc-200 text-zinc-800 rounded-tl-xs space-y-3 shadow-xs'
               }`}
             >
               <div className="whitespace-pre-line font-sans space-y-2 break-words">
@@ -335,7 +335,7 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
 
               {/* Inline Recommended Books */}
               {msg.recommendedBooks && msg.recommendedBooks.length > 0 && (
-                <div className="mt-4 pt-3 border-t border-zinc-100 space-y-2.5">
+                <div className="mt-3 sm:mt-4 pt-3 border-t border-zinc-100 space-y-2.5">
                   <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono font-bold text-[#FF3700] uppercase tracking-wider">
                     <Sparkles className="w-3 h-3" />
                     <span>Recommended Literature:</span>
@@ -350,12 +350,12 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
                       return (
                         <div
                           key={book.id}
-                          className="p-3 bg-zinc-50 hover:bg-zinc-100/90 border border-zinc-200/90 hover:border-[#FF3700] rounded-xl transition-all flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 group"
+                          className="p-3 bg-zinc-50 hover:bg-zinc-100/90 border border-zinc-200/90 hover:border-[#FF3700] rounded-xl transition-all flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 group"
                         >
                           {/* Book Details Clickable Area */}
                           <div
                             onClick={() => onSelectBook(book)}
-                            className="flex items-center gap-3 cursor-pointer min-w-0 flex-1 w-full"
+                            className="flex items-start sm:items-center gap-3 cursor-pointer min-w-0 flex-1 w-full"
                           >
                             <div className="shrink-0">
                               <BookCover book={book} size="sm" />
@@ -376,21 +376,21 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
                           </div>
 
                           {/* Mobile-Friendly Action Buttons Row */}
-                          <div className="flex items-center gap-1.5 shrink-0 self-end xs:self-center pt-1 xs:pt-0 border-t xs:border-t-0 border-zinc-200/60 w-full xs:w-auto justify-end">
+                          <div className="flex items-center gap-1.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-200/60 justify-end w-full sm:w-auto">
                             {book.isLegallyFree && (book.readOnlineUrl || book.ebookFileData) && onOpenReader && (
                               <button
                                 onClick={() => onOpenReader(book)}
-                                className="inline-flex items-center gap-1 py-1.5 px-2.5 text-[#FF3700] hover:text-[#E53100] bg-white border border-zinc-200 hover:border-[#FF3700]/40 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                                className="inline-flex items-center justify-center gap-1 py-1.5 px-2.5 text-[#FF3700] hover:text-[#E53100] bg-white border border-zinc-200 hover:border-[#FF3700]/40 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
                                 title="Read Online"
                               >
                                 <BookOpen className="w-3.5 h-3.5" />
-                                <span className="xs:hidden sm:inline text-[11px]">Read</span>
+                                <span className="text-[11px]">Read</span>
                               </button>
                             )}
 
                             <button
                               onClick={() => toggleSaveBook(book.id)}
-                              className={`inline-flex items-center gap-1 py-1.5 px-2.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer ${
+                              className={`inline-flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer ${
                                 saved
                                   ? 'bg-[#FF3700] border-[#FF3700] text-white'
                                   : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-950'
@@ -398,12 +398,12 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
                               title={saved ? 'Saved in library' : 'Save to shelf'}
                             >
                               {saved ? <Check className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
-                              <span className="xs:hidden sm:inline text-[11px]">{saved ? 'Saved' : 'Save'}</span>
+                              <span className="text-[11px]">{saved ? 'Saved' : 'Save'}</span>
                             </button>
 
                             <button
                               onClick={() => onSelectBook(book)}
-                              className="p-1.5 text-zinc-500 hover:text-zinc-900 bg-white border border-zinc-200 hover:border-[#FF3700] rounded-lg transition-colors cursor-pointer"
+                              className="inline-flex items-center justify-center p-1.5 text-zinc-500 hover:text-zinc-900 bg-white border border-zinc-200 hover:border-[#FF3700] rounded-lg transition-colors cursor-pointer"
                               title="View full syllabus"
                             >
                               <ArrowRight className="w-3.5 h-3.5" />
@@ -445,15 +445,15 @@ export const AILibrarianView: React.FC<AILibrarianViewProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* MESSAGE INPUT FORM (Docked cleanly at bottom)                              */}
+      {/* MESSAGE INPUT FORM (Docked cleanly above mobile bottom navigation bar)     */}
       {/* ========================================================================= */}
-      <div className="shrink-0 pt-1">
+      <div className="shrink-0 pt-1 pb-1">
         <form
           onSubmit={e => {
             e.preventDefault();
             handleSendMessage();
           }}
-          className="relative flex items-center bg-white border border-zinc-300 rounded-2xl p-1.5 sm:p-2 shadow-lg focus-within:border-[#FF3700] focus-within:ring-2 focus-within:ring-[#FF3700]/20 transition-all gap-1.5"
+          className="relative flex items-center bg-white border border-zinc-300 rounded-2xl p-1.5 sm:p-2 shadow-md focus-within:border-[#FF3700] focus-within:ring-2 focus-within:ring-[#FF3700]/20 transition-all gap-1.5"
         >
           <input
             ref={inputRef}
