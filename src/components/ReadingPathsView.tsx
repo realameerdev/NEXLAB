@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { ReadingPath, Book } from '../types';
 import { READING_PATHS_DATA } from '../data/readingPathsData';
-import { BOOKS_DATA } from '../data/booksData';
 import { useLibrary } from '../context/LibraryContext';
 import { BookCover } from './BookCover';
 
@@ -23,7 +22,7 @@ interface ReadingPathsViewProps {
 }
 
 export const ReadingPathsView: React.FC<ReadingPathsViewProps> = ({ onSelectBook }) => {
-  const { state, enrollInPath, completePathStage } = useLibrary();
+  const { state, allBooks, enrollInPath, completePathStage } = useLibrary();
 
   const [selectedPathId, setSelectedPathId] = useState<string>(READING_PATHS_DATA[0].id);
   const [pathsList, setPathsList] = useState<ReadingPath[]>(READING_PATHS_DATA);
@@ -197,7 +196,7 @@ export const ReadingPathsView: React.FC<ReadingPathsViewProps> = ({ onSelectBook
 
             // Books recommended for this stage
             const stageBooks = stage.recommendedBookIds
-              .map(id => BOOKS_DATA.find(b => b.id === id))
+              .map(id => allBooks.find(b => b.id === id))
               .filter(Boolean) as Book[];
 
             return (

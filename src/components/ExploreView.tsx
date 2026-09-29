@@ -220,14 +220,14 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
           {/* ========================================================================= */}
           <div className="pt-6 sm:pt-8 pb-4 relative max-w-5xl mx-auto select-none overflow-visible">
             {/* The Fanned Deck of 5 Books (100% Mobile Responsive) */}
-            <div className="relative h-[290px] sm:h-[350px] md:h-[400px] flex items-center justify-center overflow-visible">
+            <div className="relative h-[280px] xs:h-[300px] sm:h-[350px] md:h-[400px] flex items-center justify-center overflow-visible">
               {deckBooks.map((book, index) => {
                 // Calculate rotation and horizontal offset for fanned arc
                 const count = deckBooks.length;
                 const offsetFromCenter = index - Math.floor(count / 2); // -2, -1, 0, 1, 2
-                const rotation = offsetFromCenter * (isMobile ? 4 : 7); // gentle tilt
-                const translateX = offsetFromCenter * (isMobile ? 26 : 65); // tightly proportioned
-                const translateY = Math.abs(offsetFromCenter) * (isMobile ? 6 : 12);
+                const rotation = offsetFromCenter * (isMobile ? 3.5 : 7); // gentle tilt
+                const translateX = offsetFromCenter * (isMobile ? 22 : 65); // tightly proportioned for narrow phones
+                const translateY = Math.abs(offsetFromCenter) * (isMobile ? 5 : 12);
                 const isHovered = hoveredDeckIndex === index;
 
                 return (
@@ -238,25 +238,25 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
                     onClick={() => onSelectBook(book)}
                     style={{
                       transform: isHovered
-                        ? `translateX(${translateX}px) translateY(${isMobile ? -14 : -25}px) rotate(0deg) scale(${isMobile ? 1.05 : 1.08})`
+                        ? `translateX(${translateX}px) translateY(${isMobile ? -12 : -25}px) rotate(0deg) scale(${isMobile ? 1.04 : 1.08})`
                         : `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotation}deg) scale(1)`,
                       zIndex: isHovered ? 40 : 10 + Math.abs(offsetFromCenter === 0 ? 5 : 2 - Math.abs(offsetFromCenter)),
                       transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                     className="absolute cursor-pointer group touch-manipulation"
                   >
-                    <div className="w-[130px] sm:w-[185px] md:w-[220px] bg-white rounded-2xl p-2 sm:p-2.5 md:p-3 border border-zinc-200/90 shadow-xl shadow-zinc-950/10 group-hover:border-[#FF3700] group-hover:shadow-[#FF3700]/20 transition-all duration-300">
+                    <div className="w-[115px] xs:w-[130px] sm:w-[185px] md:w-[220px] bg-white rounded-2xl p-1.5 sm:p-2.5 md:p-3 border border-zinc-200/90 shadow-xl shadow-zinc-950/10 group-hover:border-[#FF3700] group-hover:shadow-[#FF3700]/20 transition-all duration-300">
                       <div className="aspect-[3/4] w-full rounded-xl overflow-hidden shadow-inner">
                         <BookCover book={book} size={isMobile ? "sm" : "md"} className="w-full h-full" />
                       </div>
-                      <div className="pt-2 px-1 text-left">
-                        <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#FF3700] block truncate">
+                      <div className="pt-1.5 sm:pt-2 px-0.5 sm:px-1 text-left">
+                        <span className="text-[8px] xs:text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#FF3700] block truncate">
                           {book.category}
                         </span>
-                        <h4 className="text-[11px] sm:text-xs md:text-sm font-bold text-zinc-900 truncate leading-snug">
+                        <h4 className="text-[10px] xs:text-[11px] sm:text-xs md:text-sm font-bold text-zinc-900 truncate leading-snug">
                           {book.title}
                         </h4>
-                        <p className="text-[10px] sm:text-[11px] text-zinc-500 font-medium truncate">
+                        <p className="text-[9px] xs:text-[10px] sm:text-[11px] text-zinc-500 font-medium truncate">
                           {book.author}
                         </p>
                       </div>
